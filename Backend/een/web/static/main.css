@@ -1,0 +1,76 @@
+body {
+    padding-top: 80px;
+    padding-bottom: 90px;
+}
+
+.navbar-brand img {
+    margin-top: -10px;
+}
+
+.jumbotron {
+    margin-top: -20px;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+/* Modal dialog */
+
+.modal {
+    text-align: center;
+    padding: 0!important;
+}
+
+.modal:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -4px;
+}
+
+.modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* SignIn form */
+
+.form-signin {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+#login {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#password {
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+
+/* Misc */
+
+.btn-join-session {
+    margin-top: -4px;
+}
+
+.progress {
+    height: 30px;
+}
+
+.progress-bar {
+    line-height: 30px !important;
+}
+
+.vote-progress {
+    margin-bottom: 0px;
+}

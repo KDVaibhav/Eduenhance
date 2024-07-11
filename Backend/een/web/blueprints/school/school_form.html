@@ -1,0 +1,59 @@
+{% macro form(model, action='', allow_edit=true) -%}
+        <form action="{{ action }}" method="post" class="form-horizontal">
+            <!-- Name -->
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input id="name"
+                           name="name"
+                           class="form-control input-lg"
+                           placeholder="School Name"
+                           value="{{ model.name }}"
+                           autocomplete="off"
+                           {%if not allow_edit%}readonly{%endif%}
+                    >
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group">
+                <label for="address" class="col-sm-2 control-label">Address</label>
+                <div class="col-sm-10">
+                    <input id="address"
+                           name="address"
+                           class="form-control input-lg"
+                           placeholder="School Address"
+                           value="{{ model.address }}"
+                           autocomplete="off"
+                           {%if not allow_edit%}readonly{%endif%}
+                    >
+                </div>
+            </div>
+
+            {% if not model %}
+            <!-- Database Name -->
+            <div class="form-group">
+                <label for="dbname" class="col-sm-2 control-label">Database Name</label>
+                <div class="col-sm-10">
+                    <input id="dbname"
+                           name="dbname"
+                           class="form-control input-lg"
+                           placeholder="Database Name (must be unique)"
+                           value="{{ model.dbname }}"
+                           autocomplete="off">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Submit -->
+            {% if allow_edit %}
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <input id="submit"
+                           type="submit"
+                           class="form-control btn btn-primary">
+                </div>
+            </div>
+            {% endif %}
+        </form>
+{%- endmacro %}

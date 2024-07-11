@@ -1,0 +1,104 @@
+{% extends "general.html" %}
+{% set active_page = "profile" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+
+    {%if marks_permission %}
+        <div class="col-sm-6">
+            <h3>Marks Summary</h3>
+            <select id="subjects-view" name="subject" class="selectpicker form-control">
+                {%for subject in subjects%}
+                    <option {%if subject == 'English'%}selected{%endif%}>{{subject}}</option>
+                {%endfor%}
+            </select>
+            <div id="chart-container">
+                <canvas id="myChart" style="width:100%;max-width:600px;margin-left:auto;margin-right:auto;"></canvas>
+            </div>
+        </div>
+        <script>
+            function render_graph(subject) {
+                var myChart
+                $.ajax({
+                    url: "/marks/comparison/"+subject,
+                    type: 'GET',
+                    success: function(result) {
+                        if (result !== 'Access denied') {
+                            var data = {
+                                labels: Object.keys(result).map((m) => "Class "+m),
+                                datasets: [
+                                    {
+                                        label: "Last Year",
+                                        backgroundColor: "red",
+                                        data: Object.values(result).map((m) => m.last)
+                                    },
+                                    {
+                                        label: "Current Year",
+                                        backgroundColor: "blue",
+                                        data: Object.values(result).map((m) => m.current)
+                                    }
+                                ]
+                            };
+                            document.getElementById('myChart').remove()
+                            document.getElementById('chart-container').innerHTML = '<canvas id="myChart" style="width:100%;max-width:600px;margin-left:auto;margin-right:auto"></canvas>'
+                            myChart = new Chart("myChart", {
+                                type: 'bar',
+                                data: data,
+                                options: {
+                                    barValueSpacing: 20,
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                min: 0,
+                                                max: 100
+                                            }
+                                        }]
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+            render_graph('English')
+            $("#subjects-view").change(function (e) {
+                e.preventDefault();
+                console.log($(this).val())
+                render_graph($(this).val())
+            })
+        </script>
+    {%endif%}
+    {% for session in sessions %}
+        {% set is_active = (session.status == 'run') %}
+        {% set is_closed = (session.status == 'closed') %}
+        {% set header_class = 'warning' if is_active else 'danger' if is_closed else 'default' %}
+
+        <div class="panel panel-{{header_class}}">
+            <div class="panel-heading">
+                <h3 class="panel-title" data-session-id="{{session._id}}">
+                    {{ session.date }}: {{ session.title }}
+                    {% if is_closed %} (Closed) {% endif %}
+                    {% if is_active and user_has_permission("session.join") %}
+                        <a href="/session/{{session._id}}" class="btn btn-xs btn-default btn-join-session pull-right">
+                            Join
+                        </a>
+                    {% endif %}
+                </h3>
+            </div>
+            <div class="panel-body">
+                {{ session.agenda }}
+            </div>
+
+            <table class="table">
+            {% for proposal in session.proposals %}
+                <tr>
+                    <td>
+                        <a href="/proposals/{{proposals.get(proposal)._id}}">{{ proposals.get(proposal).title }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+{% endblock %}

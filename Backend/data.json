@@ -1,0 +1,97 @@
+{
+    "classes": ["5", "6", "7", "8"],
+    "subjects": [
+        "Bengali", 
+        "English", 
+        "Geography", 
+        "Hindi", 
+        "History", 
+        "Mathematics", 
+        "Science"
+    ],
+    "months": ["January","February","March","April","May","June","July",
+        "August","September","October","November","December"],
+    "blood_groups": ["A+", "B+", "AB+", "O+", "A-", "B-", "AB-", "O-"],
+    "categories": ["GN", "OBC", "SC", "ST", "PWD", "EWS"],
+    "btypes": ["Prasadam fee", "Rental", "Tution fee", "Pocketmoney"],
+    "roles": [
+        {
+            "name" : "Superadmin",
+            "permissions" : [
+                "users.create", "users.read", "users.update", "users.delete", 
+                "school.create", "school.read", "school.update", "school.delete",
+                "attendance.read_all", "attendance.update",
+                "marks.read_all", "marks.update",
+                "timetable.read_all", "timetable.update",
+                "lessonplans.read", "lessonplans.update",
+                "roles.create", "roles.read", "roles.update", "roles.delete",
+                "exams.create", "exams.read", "exams.update", "exams.delete",
+                "subjects.create", "subjects.read", "subjects.update", "subjects.delete",
+                "classes.create", "classes.read", "classes.update", "classes.delete",
+                "transactions.create", "transactions.read", "transactions.update", "transactions.delete",
+                "superadmin.read", "superadmin.update",
+                "principal.create", "principal.read", "principal.update", "principal.delete", 
+                "teacher.create", "teacher.read", "teacher.update", "teacher.delete", 
+                "student.create", "student.read", "student.update", "student.delete"
+            ]
+        },
+        {
+            "name" : "Principal",
+            "permissions" : [
+                "attendance.read_all", "attendance.update",
+                "lessonplans.read", "lessonplans.update",
+                "marks.read_all", "marks.update",
+                "timetable.read_all",
+                "users.create", "users.read", "users.update", "users.delete",
+                "exams.create", "exams.read", "exams.update", "exams.delete",
+                "subjects.create", "subjects.read", "subjects.update", "subjects.delete",
+                "classes.create", "classes.read", "classes.update", "classes.delete",
+                "transactions.create", "transactions.read", "transactions.update", "transactions.delete",
+                "superadmin.read", 
+                "principal.read","principal.update",
+                "teacher.create", "teacher.read", "teacher.update", "teacher.delete", 
+                "student.create", "student.read", "student.update", "student.delete"
+            ]
+        },
+        {
+            "name" : "Teacher",
+            "permissions" : [
+                "attendance.read_all", "attendance.update",
+                "lessonplans.read", "lessonplans.update",
+                "timetable.read_all",
+                "exams.read",
+                "marks.read_all", "marks.update"
+            ]
+        },
+        {
+            "name" : "Student",
+            "permissions" : [
+                "attendance.read_own",
+                "marks.read_own",
+                "timetable.read_own",
+                "exams.read"
+            ]
+        },
+        {
+            "name": "Accountant",
+            "permissions": [
+                "transactions.create", "transactions.read", "transactions.delete",
+                "balances.read_all"
+            ]
+        },
+        {
+            "name": "Supervisor",
+            "permissions": [
+                "timetable.read_all", "timetable.update"
+            ]
+        }
+    ],
+    "users": [
+        {
+            "name": "Super Admin",
+            "login": "superadmin",
+            "password": "Prabhupada@108",
+            "role": "Superadmin"
+        }
+    ]
+}

@@ -1,0 +1,154 @@
+{% macro index(action='', allow_edit=true) -%}
+{%if allow_edit or allow_view%}
+    <div class="timetable-container">
+        <h4>Edit/View Timetable</h4>    
+        <form action="{{ action }}" method="post">
+            {%for class_ in classes%}
+                <table class="table table-hover">
+                    <caption>Class {{class_}}</caption>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {%for p in periods%}
+                                <th>{{p.timefrom}}-{{p.timeto}}</th>
+                            {%endfor%}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for d in days%}
+                            <tr>
+                                <td>{{d}}</td>
+                                {%for i in range(periods | length)%}
+                                    <td>
+                                        <select 
+                                            name="{{'teacher-' + class_ + '-' + d}}"
+                                            data-key="{{d + i | string()}}"
+                                            onchange="refresh_teachers('{{d + i | string()}}')"
+                                            style="width: 100px;" 
+                                            {%if not allow_edit%}disabled{%endif%}
+                                        >
+                                            <option value=""></option>
+                                            {%for t in teachers%}
+                                                <option 
+                                                    value="{{t.login}}"
+                                                    {%if (models.get(class_)) and (models.get(class_)[d] | length > i) and (models.get(class_)[d][i]['teacher']|default('')==t.login)%}
+                                                        selected
+                                                    {%endif%}
+                                                >{{t.name}}</option>
+                                            {%endfor%}
+                                        </select><br/>
+                                        <select 
+                                            name="{{'subject-' + class_ + '-' + d}}"
+                                            style="width: 100px;" 
+                                            {%if not allow_edit%}disabled{%endif%}
+                                        >
+                                            <option value=""></option>
+                                            {%for s in subjects[class_]%}
+                                                <option
+                                                    {%if (models.get(class_)) and (models.get(class_)[d] | length > i) and (models.get(class_)[d][i]['subject']|default('')==s)%}
+                                                        selected
+                                                    {%endif%}
+                                                >{{s}}</option>
+                                            {%endfor%}
+                                        </select>
+                                    </td>
+                                {%endfor%}
+                            </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            {%endfor%}
+            {%if allow_edit%}
+            <input type="submit" value="Submit" id="submit_button" class="btn btn-primary">
+            {%endif%}
+        </form>
+    </div>
+    <script>
+        function refresh_teachers(key) {
+            var elements = document.querySelectorAll("[data-key='"+key+"']")
+            var teachers_occupied = []
+            var teachers_list = {{teachers_js | safe}}
+            var t
+            for (e of elements) {
+                t = {
+                    name: e.options[e.selectedIndex].innerHTML,
+                    login: e.options[e.selectedIndex].value
+                }
+                if (t.login) teachers_occupied.push(t)
+            }
+            var teachers_available = []
+            var t_o_short = teachers_occupied.map((t) => t.login)
+            for (t of teachers_list) {
+                if (!t_o_short.includes(t.login))
+                    teachers_available.push("<option value='"+t.login+"'>"+t.name+"</option>")
+            }
+            for (e of elements) {
+                t = {
+                    name: e.options[e.selectedIndex].innerHTML,
+                    login: e.options[e.selectedIndex].value
+                }
+                var x = (t.login) ? "<option value='"+t.login+"'>"+t.name+"</option>" : ""
+                e.innerHTML = "<option></option>"+x+teachers_available.join("")
+                e.selectedIndex = (t.login) ? 1 : 0
+            }
+        }
+        $(document).ready(() => {
+            var days = {{days | safe}}
+            var n = {{n}}
+            for (var i=0; i<n; i++) {
+                for (day of days) {
+                    refresh_teachers(day+String(i))
+                }
+            }
+        })
+    </script>
+{%endif%}
+
+{%if model_class%}
+    <div class="timetable-container">
+        <h4>Your Timetable</h4>
+        <table class="table table-hover table-bordered">
+            <caption>Class {{class_}}</caption>
+            <thead>
+                <tr>
+                    <th></th>
+                            {%for p in periods%}
+                                <th>{{p.timefrom}}-{{p.timeto}}</th>
+                            {%endfor%}
+                </tr>
+            </thead>
+            <tbody>
+                {%for d in days%}
+                    <tr>
+                        <td>{{d}}</td>
+                        {%for i in range(periods | length)%}
+                            <td>
+                                {%if model_class[d] | length > i%}
+                                    <span>
+                                        {{model_class[d][i]['subject']}}
+                                    </span>
+                                    <br/>
+                                    <span>
+                                        {%for t in teachers%}
+                                            {%if t.login == model_class[d][i]['teacher']%}
+                                                ({{t.name}})
+                                            {%endif%}
+                                        {%endfor%}
+                                    </span>
+                                {%endif%}
+                            </td>
+                        {%endfor%}
+                    </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+{%endif%}
+<style>
+    .timetable-container {
+        margin: 40px;
+    }
+</style>
+<script>
+</script>
+{%endmacro%}

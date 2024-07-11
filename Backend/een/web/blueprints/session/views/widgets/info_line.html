@@ -1,0 +1,27 @@
+{%raw%}
+<div class='col-sm-4'>
+    <b>{{session.title}}</b>
+</div>
+<div class='col-sm-4'>
+    <center>
+        <span class="text-{{style}}">
+        {{#if overtime}}
+            Session overtime:
+        {{else}}
+            Time remaining:
+        {{/if}}
+
+        {{#if time.days}}{{time.days}}d{{/if}}
+        {{padTime time.hours}}:{{padTime time.minutes}}:{{padTime time.seconds}}
+        </span>
+    </center>
+</div>
+<div class='col-sm-4'>
+    <div class='pull-right'>
+        {{#each groups}}
+        {{@key}}: {{len @this}} |
+        {{/each}}
+        Total: {{len users}}
+    </div>
+</div>
+{%endraw%}

@@ -1,0 +1,112 @@
+{% macro index(action='', allow_edit=true) -%}
+{%if allow_view_own or allow_view_all%}
+    <h1>{{school}}</h1>
+    <table id="leave-table" class="table table-hover">
+        <thead>
+            <tr>
+                {%if allow_view_all%}<th>Teacher</th>{%endif%}
+                <th>Date</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th class="text-right no-sort">Actions</th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for model in models %}
+            <tr data-key="{{ model._id }}">
+                {%if allow_view_all%}<td>{{ model['teacher']}}</td>{%endif%}
+                <td>
+                    <a href="/{{url}}/{{ model._id }}" data-key="{{ model._id }}">
+                        {{ model['date'] or ("<no date>") }}
+                    </a>
+                </td>
+                <td>
+                    {{ model['reason'] or ("<no reason>") }}
+                </td>
+                <td>
+                    {{  '<span style="color: rgb(41, 163, 30);"><span class="glyphicon glyphicon-ok-sign"></span> Approved</span>'  | safe
+                        if model['approved'] else 
+                        '<span style="color: rgb(255, 0, 0);"><span class="glyphicon glyphicon-ban-circle"></span> Not Approved</span>' | safe}}
+                </td>
+                <td class="text-right">
+                    {%if allow_approve and not model['approved']%}
+                    <a class="approve btn btn-success btn-xs" data-key="{{ model._id }}">
+                        Approve
+                    </a>
+                    {%endif%}
+                    {%if allow_delete and not model['approved']%}
+                    <a class="delete btn btn-primary btn-xs" data-key="{{ model._id }}">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </a>
+                    {%endif%}
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {%if allow_apply%}
+        <a id="leave-new" href="/{{url}}/new" class="btn btn-primary btn-sm">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Apply for Leave
+        </a>
+    {%endif%}
+
+    <script>
+    $(document).ready(function() {
+        $(".delete").on("click", function (e) {
+            e.preventDefault();
+            if (confirm("Are you sure to delete? (cannot be recovered later)")) {
+                var key = $(this).data("key");
+                $.ajax({
+                    url: "/{{url}}/"+key,
+                    type: 'DELETE',
+                    success: function(result) {
+                        if (result["success"] === true) {
+                            $("tr[data-key='" + key + "'] ").remove();
+                        }
+                        else {
+                            console.log(result)
+                        }
+                    }
+                });
+            }
+        });
+        
+        $(".approve").on("click", function (e) {
+            e.preventDefault();
+            if (confirm("Please confirm.")) {
+                var key = $(this).data("key");
+                $.ajax({
+                    url: "/{{url}}/"+key,
+                    type: 'PUT',
+                    success: function(result) {
+                        if (result["success"] === true) {
+                            document.querySelector("tr[data-key='" + key + "']").children[3].innerHTML = '<span style="color: rgb(41, 163, 30);"><span class="glyphicon glyphicon-ok-sign"></span> Approved</span>'
+                            document.querySelector("tr[data-key='" + key + "']").children[4].innerHTML = ''
+                        }
+                        else {
+                            console.log(result)
+                        }
+                    }
+                });
+            }
+        });
+
+        $("table").DataTable({paging:false, searching:true, info:false, columnDefs: [
+            { orderable: false, targets: "no-sort" }
+        ], stateSave: true
+        })
+    });
+    </script>
+{%endif%}
+<style>
+    .leave-container {
+        margin: 40px;
+    }
+</style>
+<script>
+</script>
+{%endmacro%}

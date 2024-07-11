@@ -1,0 +1,267 @@
+{% macro index(action='', allow_edit=true) -%}
+{%if allow_edit%}
+    <div class="attendance-container">
+        <h4>Take Attendance</h4>    
+        <form action="{{ action }}" method="post">
+            <select id="classes-edit" onchange="render_subjects_edit()" name="class" class="btn btn-primary">
+                <option value="">Select a class</option>
+                {%for class in classes%}
+                    <option>{{class}}</option>
+                {%endfor%}
+            </select>
+
+            <select id="subjects-edit" name="subject" class="btn btn-primary">
+                <option value="">Select a subject</option>
+                {%for subject in subjects%}
+                    <option>{{subject}}</option>
+                {%endfor%}
+            </select>
+            <button type="button" onclick="showStudents()" class="btn btn-info">Show</button>
+            <input name="date" type="date" value="{{today}}" readonly class="btn btn-warning">
+            <table style="display: none;" id="students-edit" class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Roll</th>
+                        <th>Name</th>
+                        <th>Attendance</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <br/>
+            <input type="submit" value="Submit" disabled id="submit_button" class="btn btn-info">
+        </form>
+    </div>
+    <script>
+        function render_subjects_edit() {
+            var subjects = {{subjects_js | safe}}
+            var e = document.getElementById("classes-edit")
+            var class_ = e.options[e.selectedIndex].value
+            document.getElementById("subjects-edit").innerHTML = 
+                "<option value=\"\">Select a subject</option>"+
+                subjects[class_].map((s) => "<option>"+s+"</option>").join("")
+        }
+        function showStudents() {
+            var e = document.getElementById("classes-edit")
+            var class_ = e.options[e.selectedIndex].value
+            var e = document.getElementById("subjects-edit")
+            var subject = e.options[e.selectedIndex].value
+            if (!class_ || !subject) {
+                alert("Class or Subject is not selected.")
+                return
+            }
+            var students = {{students|safe}}
+            var models = {{models|safe}}
+            $("#students-edit").css("display", "block")
+            $("#students-edit tbody").html(`
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <input type="checkbox" id="select_all" onclick="selectall(this)"> 
+                        <label for="select_all">
+                            Select All 
+                        </label>
+                    </td>
+                </tr>
+            `)
+            $("#submit_button").removeAttr("disabled")
+            for (i of students.keys()) {
+                if (students[i].class == class_) {
+                    var checked = ""
+                    if (Object.keys(models).includes(class_)) {
+                        if (Object.keys(models[class_]).includes(subject)) {
+                            if (Object.keys(models[class_][subject]).includes("{{today}}")) {
+                                if (models[class_][subject]["{{today}}"]['attendance'].includes(students[i].login)) {
+                                    checked = " checked"
+                                }
+                            }
+                        }
+                    }
+                    $("#students-edit tbody").append(`
+                        <tr>
+                            <td>`+students[i].login+`</td>
+                            <td>`+students[i].name+`</td>
+                            <td>
+                                <input type="checkbox"`+checked+` name="`+students[i].login+`" class="attendance-check">
+                            </td>
+                        </tr>
+                    `)
+                }
+            }
+        }
+
+        function selectall(e) {
+            var checkboxes = document.getElementsByClassName("attendance-check");
+            for (var checkbox of checkboxes) {
+                checkbox.checked = e.checked;
+            }
+        }
+    </script>
+{%endif%}
+
+
+
+{%if allow_view%}
+    <div class="attendance-container">
+        <h4>View Attendance</h4>    
+        <select id="classes-view" onchange="render_subjects_view()" name="class" class="btn btn-primary">
+            <option value="">Select a class</option>
+            {%for class in classes%}
+                <option>{{class}}</option>
+            {%endfor%}
+        </select>
+
+        <select id="subjects-view" name="subject" class="btn btn-primary">
+            <option value="">Select a subject</option>
+            {%for subject in subjects%}
+                <option>{{subject}}</option>
+            {%endfor%}
+        </select>
+        <button type="button" onclick="showAttendance()" class="btn btn-info">Show</button>
+        <table style="display: none;" id="students-view" class="table table-hover">
+            <thead>
+                <tr>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        function render_subjects_view() {
+            var subjects = {{subjects_js | safe}}
+            var e = document.getElementById("classes-view")
+            var class_ = e.options[e.selectedIndex].value
+            document.getElementById("subjects-view").innerHTML = 
+                "<option value=\"\">Select a subject</option>"+
+                subjects[class_].map((s) => "<option>"+s+"</option>").join("")
+        }
+        function showAttendance() {
+            var e = document.getElementById("classes-view")
+            var class_ = e.options[e.selectedIndex].value
+            var e = document.getElementById("subjects-view")
+            var subject = e.options[e.selectedIndex].value
+            if (!class_ || !subject) {
+                alert("Class or Subject is not selected.")
+                return
+            }
+            var students = {{students|safe}}
+            var models = {{models|safe}}
+            var hist = []
+            if (Object.keys(models).includes(class_)) {
+                if (Object.keys(models[class_]).includes(subject)) {
+                    hist = Object.keys(models[class_][subject]).map((date) => {
+                        return {
+                            date: date,
+                            present: models[class_][subject][date]['attendance']
+                        }
+                    })
+                }
+            }
+            $("#students-view").css("display", "block")
+            $("#students-view tbody").html("")
+            $("#submit_button").removeAttr("disabled")
+            $("#students-view thead tr").html(
+                `<th>Roll</th>
+                <th>Name</th>`
+                + hist.map((h) => "<th>"+h.date+"</th>")
+            )
+            for (i of students.keys()) {
+                if (students[i].class == class_)
+                    $("#students-view tbody").append(`
+                        <tr>
+                            <td>`+students[i].login+`</td>
+                            <td>`+students[i].name+`</td>`+
+                            hist.map((h) => {
+                                var p = (h.present.includes(students[i].login))? "P": ""
+                                return "<td>"+p+"</td>"
+                            })
+                        +`</tr>
+                    `)
+            }
+        }
+    </script>
+{%endif%}
+{%if model_class%}
+    <div class="attendance-container">
+        <h4>Your Attendance</h4>
+        <select id="month" onchange="render_table()" class="btn btn-info">
+            {%for m in dates.keys()%}
+                <option {%if m == month_now%}selected{%endif%}>{{m}}</option>
+            {%endfor%}
+        </select>
+        <table id="my-attendance" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    {%for subject in mysubjects%}
+                        <th>{{subject}}</th>
+                    {%endfor%}
+                </tr>
+            </thead>
+            <tbody>
+                <!-- {%for date in dates[month_now]%}
+                    <tr>
+                        <td>{{date}}</td>
+                        {%for subject in subjects%}
+                            <td>
+                                {%if (subject in model_class.keys()) and (date in model_class[subject].keys())%}
+                                    {%if roll in model_class[subject][date]%}
+                                        P
+                                    {%else%}
+                                        A
+                                    {%endif%}
+                                {%endif%}
+                            </td>
+                        {%endfor%}
+                    </tr>
+                {%endfor%} -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        var model_class = {{model_class_js | safe }}
+        var subjects = {{subjects | safe}}
+        var dates = {{dates_js | safe}}
+        var roll = "{{roll | safe}}"
+        var monthElement = document.getElementById("month")
+        var month_now = monthElement.options[monthElement.selectedIndex].value
+        function render_table() {
+            var month = monthElement.options[monthElement.selectedIndex].value
+            var render = dates[month].map((date) => `
+                <tr>
+                    <td>`+date+`</td>`+
+                    subjects.map((subj) => {
+                        var x = ""
+                        if (Object.keys(model_class).includes(subj) && Object.keys(model_class[subj]).includes(date)) {
+                            if (model_class[subj][date]['attendance'].includes(roll)) x = "P"
+                            else x = "A"
+                        }
+                        return `<td>`+x+`</td>`
+                    })
+            +`</tr>`)
+            $("#my-attendance tbody").html(render)
+            const ths = document.querySelectorAll('#my-attendance thead tr th');
+            for (let s = 0; s < subjects.length; s++) {
+                ths[s+1].innerHTML = subjects[s]
+            }
+            // }
+            // $("#my-attendance thead").html(`
+            //     <tr>
+            //         <th>Date</th>`+
+            //         subjects.map((subj) => `<td>`+subj+`</td>`)
+            // +`</tr>
+            // `)
+        }
+        $(document).ready(() => {
+            render_table()
+            console.log(model_class)
+        })
+    </script>
+{%endif%}
+<style>
+    .attendance-container {
+        margin: 40px;
+    }
+</style>
+{%endmacro%}

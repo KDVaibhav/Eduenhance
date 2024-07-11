@@ -1,0 +1,141 @@
+{% macro form(model, action='', allow_edit=true) -%}
+    <form action="{{ action }}" method="post" class="form-horizontal">
+        <!-- Name -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Name</label>
+            <div class="col-sm-10">
+                <input
+                    name="name"
+                    class="form-control input-lg"
+                    placeholder="Exam Name"
+                    value="{{ model.name }}"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                >
+            </div>
+        </div>
+
+        <!-- Type -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Type</label>
+            <div class="col-sm-10">
+                <select
+                    id="type"
+                    name="type"
+                    class="form-control selectpicker"
+                    autocomplete="off"
+                    title="Choose type of exam"
+                    {%if not allow_edit%}disabled{%endif%}
+                    onchange="render_date()"
+                >
+                    {%for type in types%}
+                    <option {%if model.type == type%}selected{%endif%}>{{type}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+        </div>
+<!-- 
+        {%if model.type == "Weekly"%}
+        Date
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Date</label>
+            <div class="col-sm-10">
+                <input
+                    type="date"
+                    name="date"
+                    class="form-control"
+                    value="{{ model.date }}"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                >
+            </div>
+        </div>
+        {%endif%}
+ -->
+        <div {%if model.type != 'Weekly'%} style="display: none;" {%endif%} id="Weekly">
+            <!-- Date -->
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Date</label>
+                <div class="col-sm-10">
+                    <input
+                        type="date"
+                        name="date"
+                        class="form-control"
+                        value="{{ model.date }}"
+                        autocomplete="off"
+                        {%if not allow_edit%}readonly{%endif%}
+                    >
+                </div>
+            </div>
+        </div>
+
+        <div {%if model.type != 'Cumulative'%} style="display: none;" {%endif%} id="Cumulative">
+            <!-- Date -->
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Dates</label>
+                <div class="col-sm-5">
+                    <input
+                        type="date"
+                        name="datefrom"
+                        class="form-control"
+                        value="{%if model.type == 'Cumulative'%}{{ model.date[0] }}{%endif%}"
+                        autocomplete="off"
+                        {%if not allow_edit%}readonly{%endif%}
+                    >
+                </div>
+                <div class="col-sm-5">
+                    <input
+                        type="date"
+                        name="dateto"
+                        class="form-control"
+                        value="{%if model.type == 'Cumulative'%}{{ model.date[1] }}{%endif%}"
+                        autocomplete="off"
+                        {%if not allow_edit%}readonly{%endif%}
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Details -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Details</label>
+            <div class="col-sm-10">
+                <textarea
+                    name="details"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Write details of the exam here"
+                    {%if not allow_edit%}readonly{%endif%}
+                >
+                    {{ model.details }}
+                </textarea>
+            </div>
+        </div>
+
+        <!-- Submit -->
+
+        {%if allow_edit%}
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input id="submit"
+                    type="submit"
+                    class="form-control btn btn-primary"
+                >
+            </div>
+        </div>
+        {%endif%}
+    </form>
+    <script>
+        function render_date() {
+            var e = document.getElementById("type")
+            var type = e.options[e.selectedIndex].value
+            var types = {{types | safe}}
+            for (t of types) {
+                if (t == type) 
+                    document.getElementById(t).style.display = "block"
+                else
+                    document.getElementById(t).style.display = "none"
+            }
+        }
+    </script>
+{%- endmacro %}

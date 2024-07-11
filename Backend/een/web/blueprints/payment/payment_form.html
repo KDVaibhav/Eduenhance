@@ -1,0 +1,148 @@
+{% macro form(model, action='', allow_edit=true) -%}
+<form action="{{ action }}" method="post" class="form-horizontal">
+    
+    <!-- Month -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Month</label>
+        <div class="col-sm-10">
+            <select
+                name="month"
+                class="selectpicker form-control"
+                title="Choose a Month" 
+                autocomplete="off"
+                {%if not allow_edit%}disabled{%endif%}
+            >
+                {% for month in months %}
+                    <option {%if model.month|default('')==month%}selected{%endif%}>{{month}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>    
+
+    <!-- Teacher -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Teacher</label>
+        <div class="col-sm-10">
+            <select
+                name="teacher"
+                id="teacher"
+                class="selectpicker form-control"
+                title="Choose a Teacher" 
+                autocomplete="off"
+                {%if not allow_edit or model.teacher%}disabled{%endif%}
+            >
+                {% for t in teachers %}
+                    <option value="{{t.login}}" {%if model.teacher|default('')==t.login%}selected{%endif%}>{{t.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <!-- Basic -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Basic Salary</label>
+        <div class="col-sm-10">
+            <input
+                type="number"
+                name="basic"
+                id="basic"
+                class="form-control"
+                value="{{ model.basic }}"
+                autocomplete="off"
+                {%if not allow_edit%}readonly{%endif%}
+            >
+        </div>
+    </div>
+
+    <script>
+        $("#basic").on("input", function (e) {
+            e.preventDefault()
+            const basic = $(this).val()
+            const dul = $("#dul").val()
+            const deduc = Math.round(basic * dul / 26)
+            const net = basic - deduc
+            $("#deduc").val(deduc)
+            $("#net").val(net)
+        })
+        $('#teacher').on("change", function (e) {
+            e.preventDefault()
+            const te = document.getElementById("teacher")
+            const teacher_roll = te.options[te.selectedIndex].value
+            $.ajax({
+                url: "/{{url}}/dul",
+                type: 'POST',
+                data: {teacher: teacher_roll},
+                success: function(result) {
+                    if (result["success"] === true) {
+                        $("#dul").val(result.dul)
+                    }
+                    else {
+                        console.log(result)
+                    }
+                }
+            })
+        })
+    </script>
+    
+    <!-- Due Unpaid Leave -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Due Unpaid Leave</label>
+        <div class="col-sm-10">
+            <input
+                type="number"
+                name="dul"
+                value="{{ model.dul }}"
+                class="form-control"
+                id="dul"
+                readonly
+            >
+        </div>
+    </div>
+    
+    <!-- Deduction -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Deduction</label>
+        <div class="col-sm-10">
+            <input
+                type="number"
+                name="deduc"
+                value="{{ model.deduc }}"
+                id="deduc"
+                class="form-control"
+                autocomplete="off"
+                readonly
+            >
+        </div>
+    </div>
+    
+    <!-- Net -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Net Amount</label>
+        <div class="col-sm-10">
+            <input
+                type="number"
+                name="net"
+                id="net"
+                class="form-control"
+                value="{{ model.net }}"
+                autocomplete="off"
+                readonly
+            >
+        </div>
+    </div>
+
+    <!-- Submit -->
+
+    {%if allow_edit%}
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <input id="submit"
+                type="submit"
+                class="form-control btn btn-primary"
+            >
+        </div>
+    </div>
+    {%endif%}
+
+</form>
+{% endmacro %}

@@ -1,0 +1,159 @@
+{% extends "app.html" %}
+
+{% block navigation %}
+{% set active_page = active_page|default("index") -%}
+{% set is_session_page = active_page == "session" %}
+
+<nav class="navbar navbar-fixed-top navbar-inverse">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">
+                 <img alt="GEM" src="/static/gem-logo.svg" height="40px">
+            </a>
+        </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+
+                <li class="{%if active_page==''%}active{%endif%} nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Admin
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% if user_has_permission("users.read") %}
+                            <li class="{%if active_page=='users'%}active{%endif%}"><a href="/users">Users</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("roles.read") %}
+                            <li class="{%if active_page=='roles'%}active{%endif%}"><a href="/roles">Roles</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("school.read") %}
+                            <li class="{%if active_page=='school'%}active{%endif%}"><a href="/school">Schools</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("subjects.read") %}
+                            <li class="{%if active_page=='subjects'%}active{%endif%}"><a href="/subjects">Subjects</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("classes.read") %}
+                            <li class="{%if active_page=='classes'%}active{%endif%}"><a href="/classes">Classes</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("exams.read") %}
+                            <li class="{%if active_page=='exams'%}active{%endif%}"><a href="/exams">Exams</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("transactions.read") %}
+                            <li class="{%if active_page=='transactions'%}active{%endif%}"><a href="/transactions">Transactions</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("periods.read") %}
+                            <li class="{%if active_page=='periods'%}active{%endif%}"><a href="/periods">Periods</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("news.read") %}
+                            <li class="{%if active_page=='news'%}active{%endif%}"><a href="/news">News</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+
+                <li class="{%if active_page==''%}active{%endif%} nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Students
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% if (user_has_permission("timetable.read_all")) or (user_has_permission("timetable.read_own")) or (user_has_permission("timetable.update")) %}
+                        <li class="{%if active_page=='timetable'%}active{%endif%}"><a href="/timetable">Timetable</a></li>
+                        {% endif %}
+
+                        {% if (user_has_permission("attendance.read_all")) or (user_has_permission("attendance.read_own")) or (user_has_permission("attendance.update")) %}
+                        <li class="{%if active_page=='attendance'%}active{%endif%}"><a href="/attendance">Attendance</a></li>
+                        {% endif %}
+
+                        {% if (user_has_permission("marks.read_all")) or (user_has_permission("marks.read_own")) or (user_has_permission("marks.update")) %}
+                        <li class="{%if active_page=='marks'%}active{%endif%}"><a href="/marks">Marks</a></li>
+                        {% endif %}
+
+                        {% if user_has_permission("lessonplans.read") %}
+                        <li class="{%if active_page=='lessonplans'%}active{%endif%}"><a href="/lessonplans">Lesson Plans</a></li>
+                        {% endif %}
+
+                        {% if (user_has_permission("balances.read_all")) or (user_has_permission("balances.read_own")) %}
+                        <li class="{%if active_page=='balances'%}active{%endif%}"><a href="/balances">Balances</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+
+                <li class="{%if active_page==''%}active{%endif%} nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Teachers
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% if (user_has_permission("leave.read_all")) or (user_has_permission("leave.read_own")) or (user_has_permission("leave.update")) %}
+                        <li class="{%if active_page=='leave'%}active{%endif%}"><a href="/leave">Leave</a></li>
+                        {% endif %}
+
+                        {% if (user_has_permission("payment.read_all")) or (user_has_permission("payment.read_own")) or (user_has_permission("payment.update")) %}
+                        <li class="{%if active_page=='payment'%}active{%endif%}"><a href="/payment">Payment</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
+
+
+                {% if user_has_permission("admin") %}
+                <li class="{%if active_page=='admin'%}active{%endif%}"><a href="/admin">Admin</a></li>
+                {% endif %}
+
+                <li class="{%if active_page=='search'%}active{%endif%} hidden-lg hidden-md"><a href="/search">Search</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+            {% if current_user.is_authenticated %}
+                <li class="dropdown {%if active_page=='profile'%}active{%endif%}">
+                    <a href="/account" class="dropdown-toggle" data-toggle="dropdown">
+                        {{ current_user.name }} <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/account/"><i class="glyphicon glyphicon-inbox"></i> Dashboard</a></li>
+                        <li><a href="/account/edit"><i class="glyphicon glyphicon-cog"></i> Change Password</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/account/logout"><i class="glyphicon glyphicon-off"></i> Logout</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li class="{%if active_page=='profile'%}active{%endif%}">
+                    <a id="account-login-link" href="/account/login" class="navbar-link">Login</a>
+                </li>
+            {% endif %}
+            </ul>
+
+            {% if current_user.is_authenticated and active_page != 'search' %}
+            <div class="nav navbar-nav hidden-sm hidden-xs col-md-3 pull-right">
+                <form action="/search" class="navbar-form" role="search" style="padding-top:5px" {%if is_session_page%}target="search"{% endif %}>
+                    <div class="input-group">
+                        <input type="text" class="form-control input-sm" placeholder="Search" name="q">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default btn-sm" type="submit">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</nav>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "crud/crud.html" %}
+
+{% block body %}
+<h1>{{school}}</h1>
+<table id="{{namespace}}-table" class="table table-hover">
+    <thead>
+        <tr>
+            {% for field in fields %}
+            <th>{{ field|capitalize }}</th>
+            {% endfor %}
+
+            {% if show_actions %}
+            <th class="text-right no-sort">Actions</th>
+            {% endif %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for model in models %}
+        <tr data-key="{{ model._id }}" class="{{ row_class(model) }}">
+            {% for field in fields %}
+                <td>
+                {% if loop.index == 1 %}
+                    <a href="/{{url}}/{{ model._id }}" data-key="{{ model._id }}">
+                        {{ model[field] or ("<no " + field + ">") }}
+                    </a>
+                {% else %}
+                    {{ model[field] or ("<no " + field + ">") }}
+                {% endif %}
+                </td>
+            {% endfor %}
+
+            {% if show_actions %}
+            <td class="text-right">
+                {% if ((namespace != "users") or (model.show_delete)) and show_delete %}
+                <a class="delete btn btn-primary btn-xs" data-key="{{ model._id }}">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </a>
+                {% endif %}
+
+                {% for action in actions %}
+                    {% if user_has_permission(action.permission) or not action.permission %}
+                    <a class="btn btn-primary btn-xs {{ action.css_class }}" data-key="{{ model._id }}">
+                        <span class="glyphicon glyphicon-{{ action.icon }}" aria-hidden="true"></span>
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </td>
+            {% endif %}
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if show_create %}
+    <a id="{{namespace}}-new" href="/{{url}}/new" class="btn btn-primary btn-sm">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create {{model_name}}
+    </a>
+{% endif %}
+
+<script>
+$(document).ready(function() {
+    $(".delete").on("click", function (e) {
+        e.preventDefault();
+        if (confirm("Are you sure to delete? (cannot be recovered later)")) {
+            var key = $(this).data("key");
+            $.ajax({
+                url: "/{{url}}/"+key,
+                type: 'DELETE',
+                success: function(result) {
+                    if (result["success"] === true) {
+                        $("tr[data-key='" + key + "']").remove();
+                    }
+                }
+            });
+        }
+    });
+
+    $("table").DataTable({paging:false, searching:true, info:false, columnDefs: [
+        { orderable: false, targets: "no-sort" }
+    ], stateSave: true
+    })
+});
+</script>
+{% endblock %}

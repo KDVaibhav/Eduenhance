@@ -1,0 +1,67 @@
+{% extends "general.html" %}
+{% set active_page = "index" %}
+
+{% block title %}EduEnhance{% endblock %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+    <div class="container">
+        <center>
+        <img src="/static/logo.svg" alt="GEM" style="width: 75%; height: auto; max-height:250px;">
+
+        {% if not current_user.is_authenticated %}
+            <div class="well">
+                <form class="form-signin" action="/account/login" method="post">
+                    <label for="login" class="sr-only">Login or name</label>
+                    <input id="login" name="login" class="form-control" placeholder="Login or name" autofocus autocomplete="off">
+                    <label for="password" class="sr-only">Password</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Password">
+                    <label for="school" class="sr-only">School</label>
+                    <select id="school" name="school" class="form-control selectpicker" placeholder="School" title="Select a school">
+                        {% for id, name in schools %}
+                            <option value="{{id}}">{{name}}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="remember-me"> Remember me</label>
+                    </div>
+                    <button id="signin" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                </form>
+            </div>
+        {% endif %}
+        </center>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block body %}
+<div>
+    {% import "session_panel.html" as pnl %}
+    {% if active_sessions %}
+        <h3>Active Session</h3>
+        {% for session in active_sessions %}
+            {{ pnl.session_panel(session) }}
+        {% endfor %}
+    {% endif %}
+
+    {% if upcoming_sessions %}
+        <h3>Upcoming Sessions</h3>
+        {% for session in upcoming_sessions %}
+            {{ pnl.session_panel(session) }}
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        {{welcome1.value|safe}}
+    </div>
+    <div class="col-md-4">
+        {{welcome2.value|safe}}
+    </div>
+    <div class="col-md-4">
+        {{welcome3.value|safe}}
+    </div>
+</div>
+{% endblock %}

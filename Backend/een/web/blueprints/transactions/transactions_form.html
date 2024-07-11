@@ -1,0 +1,121 @@
+{% macro form(model, action='', allow_edit=true) -%}
+    <form action="{{ action }}" method="post" class="form-horizontal">
+        <!-- Student -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Student</label>
+            <div class="col-sm-10">
+                <select
+                    name="student"
+                    class="form-control selectpicker"
+                    title="Select a student"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                    required
+                >
+                    {%for student in students%}
+                    <option value="{{student.login}}" {%if model.student|default('')==student.login%}selected{%endif%}>{{student.name}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+        </div>
+
+        <!-- Transaction Type -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Transaction Type</label>
+            <div class="col-sm-10">
+                <select
+                    name="ttype"
+                    class="form-control selectpicker"
+                    title="Select a type"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                    required
+                >
+                    {%for ttype in ['Credit', 'Debit']%}
+                    <option {%if model.ttype|default('')==ttype%}selected{%endif%}>{{ttype}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+        </div>
+
+        <!-- Balance Type -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Balance Type</label>
+            <div class="col-sm-10">
+                <select
+                    name="btype"
+                    class="form-control selectpicker"
+                    title="Select a type"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                    required
+                >
+                    {%for btype in btypes%}
+                    <option {%if model.btype|default('')==btype%}selected{%endif%}>{{btype}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Amount</label>
+            <div class="col-sm-10">
+                <input
+                    name="amount"
+                    type="number"
+                    class="form-control"
+                    placeholder="Amount"
+                    value="{{model.amount}}"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                    required
+                >
+            </div>
+        </div>
+
+        <!-- Remarks -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Remarks</label>
+            <div class="col-sm-10">
+                <input
+                    name="remarks"
+                    class="form-control"
+                    placeholder="Remarks (if any)"
+                    value="{{model.remarks}}"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                >
+            </div>
+        </div>
+
+        <!-- Date -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Date</label>
+            <div class="col-sm-10">
+                <input
+                    name="date"
+                    type="date"
+                    class="form-control"
+                    placeholder="Date"
+                    value="{{model.date}}"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                    required
+                >
+            </div>
+        </div>
+
+        <!-- Submit -->
+        {%if allow_edit%}
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input id="submit"
+                    type="submit"
+                    class="form-control btn btn-primary"
+                >
+            </div>
+        </div>
+        {%endif%}
+    </form>
+{%- endmacro %}

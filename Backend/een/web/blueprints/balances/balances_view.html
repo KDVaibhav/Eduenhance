@@ -1,0 +1,168 @@
+{% macro index(action='', allow_edit=true) -%}
+{%if allow_view%}
+    <div class="balances-container">
+        <h4>View Balances</h4>    
+        <select id="classes-view" onchange="render_students_view()" name="class" class="btn btn-primary">
+            <option value="">Select a class</option>
+            {%for class in classes%}
+                <option>{{class}}</option>
+            {%endfor%}
+        </select>
+
+        <select id="students-view" name="student" class="btn btn-primary">
+            <option value="">Select a student</option>
+        </select>
+        <button type="button" onclick="showBalances()" class="btn btn-info">Show</button>
+        <table style="display: none;" id="students-table" class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    {%for btype in btypes%}
+                    <th>{{btype}}</th>
+                    {%endfor%}
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        function render_students_view() {
+            var students = {{students | safe}}
+            var e = document.getElementById("classes-view")
+            var class_ = e.options[e.selectedIndex].value
+            document.getElementById("students-view").innerHTML = 
+                "<option value=\"\">Select a student</option>"+
+                students.map((s) => {
+                    if (s['class'] === class_) return "<option value=\""+s.login+"\">"+s.name+"</option>"
+                }).join("")
+        }
+        function showBalances() {
+            var e = document.getElementById("classes-view")
+            var class_ = e.options[e.selectedIndex].value
+            var e = document.getElementById("students-view")
+            var student = e.options[e.selectedIndex].value
+            if (!class_ || !student) {
+                alert("Class or Subject is not selected.")
+                return
+            }
+            var models = {{trans|safe}}
+            var balances = {{models | safe}}
+            var btypes = {{btypes | safe}}
+            $("#students-table").css("display", "block")
+            $("#students-table tbody").html("")
+            $("#submit_button").removeAttr("disabled")
+            console.log(models.length)
+            for (var i=0; i<models.length; i++) {
+                console.log([models[i]['student'], student])
+                if (models[i]['student'] == student)
+                    $("#students-table tbody").append(`
+                        <tr>
+                            <td>`+models[i].date+`</td>
+                            `+
+                                btypes.map((bt) => {
+                                    var ret
+                                    if (models[i].btype === bt) {
+                                        if (models[i].ttype === "Credit")
+                                            ret = "<td class=\"btn-success\">"+String(models[i].amount)+"</td>"
+                                        else
+                                            ret = "<td class=\"btn-danger\">-"+String(models[i].amount)+"</td>"
+                                    }
+                                    else
+                                        ret = "<td></td>"
+                                    return ret
+                                }).join("")
+                            +`
+                            <td>`+models[i].remarks+`</td>
+                        </tr>
+                    `)
+            }
+            for (var i=0; i<balances.length; i++) {
+                if (balances[i]['student'] == student)
+                    $("#students-table tbody").append(`
+                        <tr>
+                            <td></td>
+                            `+
+                                btypes.map((bt) => "<td></td>").join("")
+                            +`
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Total</td>
+                            `+
+                                btypes.map((bt) => {
+                                    var ret
+                                    if (balances[i][bt]) 
+                                        ret = "<td>"+String(balances[i][bt])+"</td>"
+                                    else
+                                        ret = "<td>0</td>"
+                                    return ret
+                                }).join("")
+                            +`
+                            <td></td>
+                        </tr>
+                    `)
+            }
+            
+        }
+    </script>
+{%endif%}
+{%if model_ind%}
+    <div class="balances-container">
+        <h4>Your Balance</h4>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    {%for btype in btypes%}
+                    <th>{{btype}}</th>
+                    {%endfor%}
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for t in tran_ind%}
+                    <tr>
+                        <td>{{t.date}}</td>
+                        {%for btype in btypes%}
+                            {%if t.btype == btype%}
+                                {%if t.ttype == "Credit"%}
+                                    <td class="btn-success">{{t.amount}}</td>
+                                {%else%}
+                                    <td class="btn-danger">-{{t.amount}}</td>
+                                {%endif%}
+                            {%else%}
+                                <td></td>
+                            {%endif%}
+                        {%endfor%}
+                        <td>{{t.remarks}}</td>
+                    </tr>
+                {%endfor%}
+                <tr>
+                    <td></td>
+                    {%for btype in btypes%}
+                        <td></td>
+                    {%endfor%}
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Total</td>
+                    {%for btype in btypes%}
+                        {%if model_ind[btype]%}
+                            <td>{{model_ind[btype]}}</td>
+                        {%else%}
+                            <td>0</td>
+                        {%endif%}
+                    {%endfor%}
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{%endif%}
+<style>
+    .attendance-container {
+        margin: 40px;
+    }
+</style>
+{%endmacro%}

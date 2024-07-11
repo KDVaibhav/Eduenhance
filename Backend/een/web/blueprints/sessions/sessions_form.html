@@ -1,0 +1,176 @@
+{% macro form(model, action='', allow_edit=true) -%}
+
+<form action="{{ action }}" method="post" class="form-horizontal">
+    <!-- Title -->
+    <div class="form-group">
+        <label for="title" class="col-sm-2 control-label">Title</label>
+        <div class="col-sm-10">
+            <input id="title"
+                   name="title"
+                   class="form-control input-lg"
+                   placeholder="Title"
+                   value="{{ model.title }}"
+                   autocomplete="off"
+                   {%if not allow_edit%}readonly{%endif%}>
+        </div>
+    </div>
+
+    <!-- Date -->
+    <div class="form-group">
+        <label for="date" class="col-sm-2 control-label">Date</label>
+        <div class="col-sm-10">
+            <input id="date"
+                   name="date"
+                   class="form-control"
+                   placeholder="Date"
+                   value="{{ model.date }}"
+                   autocomplete="off"
+                   data-provide="datepicker"
+                   data-date-format="yyyy/mm/dd"
+                   {%if not allow_edit%}readonly{%endif%}>
+        </div>
+    </div>
+
+    <!-- Time -->
+    <div class="form-group">
+        <label for="time-start" class="col-sm-2 control-label">Time</label>
+        <div class="col-sm-5">
+            <input id="time-start"
+                   name="time-start"
+                   class="form-control bootstrap-timepicker timepicker"
+                   placeholder="Time start"
+                   value="{{ model.time_start }}"
+                   autocomplete="off"
+                   data-provide="timepicker"
+                   data-minute-step="1"
+                   data-show-meridian="false"
+                   data-modal-backdrop="true"
+                   type="text"
+                   {%if not allow_edit%}readonly{%endif%}>
+        </div>
+        <div class="col-sm-5">
+            <input id="time-end"
+                   name="time-end"
+                   class="form-control bootstrap-timepicker timepicker"
+                   placeholder="Time end"
+                   value="{{ model.time_end }}"
+                   autocomplete="off"
+                   data-provide="timepicker"
+                   data-minute-step="1"
+                   data-show-meridian="false"
+                   data-modal-backdrop="true"
+                   type="text"
+                   {%if not allow_edit%}readonly{%endif%}>
+        </div>
+    </div>
+
+    <!-- Agenda -->
+    <div class="form-group">
+        <label for="agenda" class="col-sm-2 control-label">Agenda</label>
+        <div class="col-sm-10">
+            <textarea id="agenda"
+                      name="agenda"
+                      class="form-control"
+                      rows="10"
+                      placeholder="Paste or write agenda here"
+                      {%if not allow_edit%}readonly{%endif%}>
+                {{- model.agenda -}}
+            </textarea>
+        </div>
+    </div>
+
+    <!-- Presence roles -->
+    <div class="form-group">
+        <label for="agenda" class="col-sm-2 control-label">Presence</label>
+        <div class="col-sm-10">
+            <select name="presence" class="selectpicker form-control" title="Choose a role" {%if not allow_edit%}disabled{%endif%} multiple data-actions-box="true">
+                {% set permissions = model.permissions.presence if model else [] %}
+                {% for role in roles %}
+                    <option {%if role in permissions%}selected{%endif%}>{{role}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Vote roles -->
+    <div class="form-group">
+        <label for="agenda" class="col-sm-2 control-label">Vote</label>
+        <div class="col-sm-10">
+            <select name="vote" class="selectpicker form-control" title="Choose a role" {%if not allow_edit%}disabled{%endif%} multiple data-actions-box="true">
+                {% set permissions = model.permissions.vote if model else [] %}
+                {% for role in roles %}
+                    <option {%if role in permissions%}selected{%endif%}>{{role}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="proposals" class="col-sm-2 control-label">Proposals</label>
+        <div class="col-sm-10">
+            <div id="proposals" class="list-group"></div>
+
+            <a id="proposal-add" class="form-control btn btn-primary">Add proposal</a>
+            <input id="proposals-ids" name="proposals" type="hidden">
+        </div>
+    </div>
+
+    <!-- Proposal submit button -->
+    {% if allow_edit %}
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <input id="submit"
+                   type="submit"
+                   class="form-control btn btn-primary">
+        </div>
+    </div>
+    {% endif %}
+</form>
+
+<div id="proposal-add-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Add proposal to session</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input id="proposal-search"
+                        class="form-control"
+                        placeholder="Search proposal by title"
+                        autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <div id="proposal-search-result" class="list-group">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Add Proposal</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script id="entry-template" type="text/x-handlebars-template">
+    {% raw %}
+    {{#each proposals}}
+        <a href="#" class="list-group-item" data-key="{{key}}">{{title}}</a>
+    {{else}}
+        <a href="#" class="list-group-item list-group-item-danger">{{empty}}</a>
+    {{/each}}
+    {% endraw %}
+</script>
+
+<script id="proposals-models" type="application/json">
+    {% if proposals_objects %}
+      {{proposals_objects|tojson}}
+    {%else%}
+      {}
+    {% endif %}
+</script>
+{%- endmacro %}

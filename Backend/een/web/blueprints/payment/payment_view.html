@@ -1,0 +1,164 @@
+{% macro index(action='', allow_edit=true) -%}
+{%if allow_view_own or allow_view_all%}
+    <h1>{{school}}</h1>
+    <table id="leave-table" class="table table-hover">
+        <thead>
+            <tr>
+                {%if allow_view_all%}<th>Teacher</th>{%endif%}
+                <th>Month</th>
+                <th>Net Amount</th>
+                <th>Paid On</th>
+                <th class="text-right no-sort">Actions</th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for model in models %}
+            <tr data-key="{{ model._id }}">
+                {%if allow_view_all%}<td>{{ model['teacher']}}</td>{%endif%}
+                <td>
+                    <a href="/{{url}}/{{ model._id }}" data-key="{{ model._id }}">
+                        {{ model['month'] or ("<no month>") }}
+                    </a>
+                </td>
+                <td>
+                    {{ model['net'] or ("<no net amount>") }}
+                </td>
+                <td>
+                    {{ model['paid_on'] or ("<no date>") }}
+                </td>
+                <td class="text-right">
+                    <a class="pay_slip btn btn-success btn-xs" 
+                        data-name="{{ model.teacher }}"
+                        data-id="{{ model.login }}"
+                        data-month="{{ model.month }}"
+                        data-net="{{ model.net }}"
+                        data-deduc="{{ model.deduc }}"
+                        data-basic="{{ model.basic }}"
+                        data-toggle="modal" data-target="#myModal"
+                    >
+                        Pay Slip <span class="glyphicon glyphicon-download"></span>
+                    </a>
+                    {%if allow_delete%}
+                    <a class="delete btn btn-primary btn-xs" data-key="{{ model._id }}">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </a>
+                    {%endif%}
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {%if allow_create%}
+        <a id="leave-new" href="/{{url}}/new" class="btn btn-primary btn-sm">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create New Payment
+        </a>
+    {%endif%}
+
+    <br/><br/>
+    
+    <!-- Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+      
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">View Pay Slip</h4>
+                </div>
+                <div class="modal-body">
+                    <canvas id="canvas" width="749" height="941"></canvas>
+                </div>
+                <div class="modal-footer">
+                    <a id="dnld" class="btn btn-info">
+                        Download 
+                        <span class="glyphicon glyphicon-download"></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        $(".delete").on("click", function (e) {
+            e.preventDefault();
+            if (confirm("Are you sure to delete? (cannot be recovered later)")) {
+                var key = $(this).data("key");
+                $.ajax({
+                    url: "/{{url}}/"+key,
+                    type: 'DELETE',
+                    success: function(result) {
+                        if (result["success"] === true) {
+                            $("tr[data-key='" + key + "'] ").remove();
+                        }
+                        else {
+                            console.log(result)
+                        }
+                    }
+                });
+            }
+        });
+
+        $(".pay_slip").on("click", function (e) {
+            e.preventDefault()
+            const canvas = document.getElementById("canvas")
+            var ctx = canvas.getContext("2d")
+            var img = new Image()
+            img.src = '/static/PaySlip.jpg'
+            img.width = canvas.width 
+            img.height = canvas.height
+            
+            const name = $(this).data('name')
+            const id = $(this).data('id')
+            const month = $(this).data('month')
+            const basic = $(this).data('basic')
+            const deduc = $(this).data('deduc')
+            const net = $(this).data('net')
+
+            img.addEventListener('load', () => {
+                ctx.drawImage(img, 0, 0)
+                ctx.font = '20px monotype Arial'
+                ctx.fillText(name , 170, 250)
+                ctx.fillText(id , 170, 278)
+                ctx.fillText(month , 170, 307)
+
+                ctx.font = '15px monotype Arial'
+                ctx.fillText(basic , 235, 396)
+                ctx.fillText(deduc , 532, 396)
+                ctx.fillText(basic , 235, 594)
+                ctx.fillText(deduc , 532, 594)
+                ctx.fillText(net , 532, 624)
+
+                var link = document.getElementById('dnld');
+                link.download = id+'_'+month+'.png';
+                link.href = canvas.toDataURL()
+            })
+        })
+
+        $("table").DataTable({paging:false, searching:true, info:false, columnDefs: [
+            { orderable: false, targets: "no-sort" }
+        ], stateSave: true
+        })
+    });
+    </script>
+{%endif%}
+<style>
+    .leave-container {
+        margin: 40px;
+    }
+    .modal-dialog {
+        width: fit-content;
+        max-width: 100vw;
+    }
+    .modal-body {
+        overflow-x: scroll;
+    }
+</style>
+<script>
+</script>
+{%endmacro%}

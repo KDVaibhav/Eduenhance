@@ -1,0 +1,48 @@
+{% macro form(model, action='', allow_edit=true) -%}
+<form action="{{ action }}" method="post" class="form-horizontal">
+    <!-- Date -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Date</label>
+        <div class="col-sm-10">
+            <input
+                type="date"
+                name="date"
+                class="form-control"
+                value="{{ model.date }}"
+                autocomplete="off"
+                {%if not allow_edit%}readonly{%endif%}
+            >
+        </div>
+    </div>
+
+    
+    <!-- Reason -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Reason</label>
+        <div class="col-sm-10">
+            <input
+                type="test"
+                name="reason"
+                class="form-control"
+                value="{{ model.reason }}"
+                autocomplete="off"
+                {%if not allow_edit%}readonly{%endif%}
+            >
+        </div>
+    </div>
+
+    <!-- Submit -->
+
+    {%if allow_edit%}
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <input id="submit"
+                type="submit"
+                class="form-control btn btn-primary"
+            >
+        </div>
+    </div>
+    {%endif%}
+
+</form>
+{% endmacro %}

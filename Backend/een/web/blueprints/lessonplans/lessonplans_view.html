@@ -1,0 +1,308 @@
+{% macro index(action='', allow_edit=true) -%}
+    <div>
+        <h4>Lesson Plans</h4>    
+        <form action="{{ action }}" method="post" enctype = "multipart/form-data">
+            <select id="classes" onchange="render_subjects()" name="class" class="btn btn-primary">
+                <option value="">Select a class</option>
+                {%for class in classes%}
+                    <option>{{class}}</option>
+                {%endfor%}
+            </select>
+
+            <select id="subjects" name="subject" class="btn btn-primary">
+                <option value="">Select a subject</option>
+                {%for subject in subjects%}
+                    <option>{{subject}}</option>
+                {%endfor%}
+            </select>
+            <button type="button" onclick="showLessonPlans()" class="btn btn-info">Show</button>
+            <div id="lessonplans"></div>
+            <br/>
+            <button type='button' id="addnew" onclick='add_new()' style="display: none;" class="btn btn-primary">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add new Chapter
+            </button>
+
+            <input type="submit" value="Submit" disabled id="submit_button" class="btn btn-info">
+        </form>
+    </div>
+    <style>
+         .chapter-container {
+             border: 2px solid black;
+             border-radius: 10px;
+             padding: 20px;
+             margin: 20px 0;
+         }
+    </style>
+    <script>
+        var delete_button = `<button type="button" class="btn btn-danger">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true">
+            </span>
+        </button>`
+        function render_subjects() {
+            var subjects = {{subjects_js | safe}}
+            var e = document.getElementById("classes")
+            var class_ = e.options[e.selectedIndex].value
+            document.getElementById("subjects").innerHTML = 
+                "<option value=\"\">Select a subject</option>"+
+                subjects[class_].map((s) => "<option>"+s+"</option>").join("")
+        }
+        function file_delete(e) {
+            var id = e.dataset['id']
+            var class_ = e.dataset['class_']
+            var subject = e.dataset['subject']
+            var key = e.dataset['key']
+            $.ajax({
+                url: "/{{url}}/deletefile",
+                type: 'DELETE',
+                contentType: 'application/json',
+                data: {
+                    'class_': class_,
+                    'subject': subject,
+                    'key': key,
+                    'fileid': id
+                },
+                success: function(result) {
+                    if (result["success"]) {
+                        $("div[data-id='" + id + "']").remove()
+                    }
+                }
+            })
+        }
+        
+        function add_new(class_, subject) {
+            var render = `
+                <div 
+                    class="chapter-container"
+                    data-class_="`+class_+`" 
+                    data-subject="`+subject+`" 
+                >
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Chapter</label>
+                        <div class="col-sm-10">
+                            <input
+                                name="chapter"
+                                class="form-control"
+                                placeholder="Chapter"
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Plan</label>
+                        <div class="col-sm-10">
+                            <textarea class="summernote"
+                                name="plan"
+                                class="form-control"
+                                rows="20"
+                                placeholder="Paste or write content here"
+                            ></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Attachments</label>
+                        <div class="col-sm-10">
+                            <input
+                                name="attach"
+                                multiple
+                                type="file"
+                                class="form-control input-lg"
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>`+ delete_button +`
+                </div>`
+            $("#lessonplans").append(render)
+            render_summernote()
+            refreshIndices()
+        }
+        function showLessonPlans() {
+            var e = document.getElementById("classes")
+            var class_ = e.options[e.selectedIndex].value
+            var e = document.getElementById("subjects")
+            var subject = e.options[e.selectedIndex].value
+            if (!class_ || !subject) {
+                alert("Class or Subject is not selected.")
+                return
+            }
+            var models = {{models|safe}}
+            var allow_edit = {{"true" if allow_edit else "false"}}
+            if (allow_edit) {
+                $("#submit_button").removeAttr("disabled")
+                $("#addnew").removeAttr("style")
+            }
+            var lp = (Object.keys(models).includes(class_))? models[class_]: {}
+            var db = ""
+            if (allow_edit) db = delete_button
+            if (Object.keys(lp).includes(subject)) {
+                $("#lessonplans").html("")
+                $("#lessonplans").append(lp[subject].map((l, key) => {
+                    var readonly = (allow_edit)? "" : "readonly"
+                    var sn = (allow_edit)? `
+                        <textarea class="summernote"
+                            name="plan"
+                            class="form-control"
+                            rows="20"
+                            placeholder="Paste or write content here"
+                        >`+l.plan+`</textarea>`: 
+                        `<p>`+l.plan+`</p>`
+                    var files = (l.attach)? Object.keys(l.attach).map((id) => {
+                        return `
+                            <div data-id="`+id+`">
+                                <a href="`+'/static/uploads/' + id + l.attach[id]['extension']+`" target="_blank">
+                                    <span class="glyphicon glyphicon-file"></span>
+                                    `+l.attach[id]["viewname"]+`
+                                </a>
+                                <a 
+                                    onclick="file_delete(this)" 
+                                    data-class_="`+class_+`" 
+                                    data-subject="`+subject+`" 
+                                    data-key="`+key+`" 
+                                    data-id="`+id+`" 
+                                    style="cursor: pointer; margin-left: 20px;"
+                                >
+                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                </a>
+                            </div>
+                        `
+                    }).join("") : ""
+                    return `
+                        <div 
+                            class="chapter-container"
+                            data-class_="`+class_+`" 
+                            data-subject="`+subject+`" 
+                            data-key="`+key+`" 
+                        >
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Chapter</label>
+                                <div class="col-sm-10">
+                                    <input
+                                        name="chapter"
+                                        class="form-control"
+                                        placeholder="Chapter"
+                                        value="`+l.chapter+`"
+                                        autocomplete="off"
+                                        `+readonly+`
+                                    >
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="content" class="col-sm-2 control-label">Plan</label>
+                                <div class="col-sm-10">
+                                    `+sn+`
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">Attachments</label>
+                                <div class="col-sm-10">
+                                    <input
+                                        name="attach"
+                                        multiple
+                                        type="file"
+                                        class="form-control input-lg"
+                                        autocomplete="off"
+                                    >`+ files +`
+                                </div>
+                            </div>`+ db+`
+                        </div>`
+                }))
+            }
+            else {
+                $("#lessonplans").html((allow_edit)? `
+                    <div 
+                        class="chapter-container"
+                        data-class_="`+class_+`" 
+                        data-subject="`+subject+`" 
+                    >
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Chapter</label>
+                            <div class="col-sm-10">
+                                <input
+                                    name="chapter"
+                                    class="form-control"
+                                    placeholder="Chapter"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Plan</label>
+                            <div class="col-sm-10">
+                                <textarea class="summernote"
+                                    name="plan"
+                                    class="form-control"
+                                    rows="20"
+                                    placeholder="Paste or write content here"
+                                ></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Attachments</label>
+                            <div class="col-sm-10">
+                                <input
+                                    name="attach"
+                                    multiple
+                                    type="file"
+                                    class="form-control input-lg"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>`+ db +`
+                    </div>
+                    `: 'There is nothing to show')
+            }
+            document.getElementById('addnew').setAttribute("onclick", "add_new('"+class_+"', '"+subject+"')")
+            render_summernote()
+            refreshIndices()
+        }
+        function render_summernote() {
+            $('.summernote').summernote({
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['table']]
+                ]
+            })
+        }
+        var refreshIndices = () => {
+            var chapters = document.getElementById("lessonplans").children
+            for (var i=0; i<chapters.length; i++) {
+                chapters[i].children[3].setAttribute("onclick", "remove_chapter("+String(i)+")")
+                chapters[i].children[2].children[1].children[0].setAttribute("name", "attach-"+String(i)+"[]")
+
+            }
+        }
+
+        function remove_chapter(index) {
+            var container = document.getElementById("lessonplans")
+            if (container.childElementCount === 1) {
+                alert("You must have at least one chapter.")
+                return
+            }
+            var chapter_container = container.children[index]
+            var class_ = chapter_container.dataset['class_']
+            var subject = chapter_container.dataset['subject']
+            var key = index
+            $.ajax({
+                url: "/{{url}}/deletechapter",
+                type: 'DELETE',
+                contentType: 'application/json',
+                data: {
+                    'class_': class_,
+                    'subject': subject,
+                    'key': key
+                },
+                success: function(result) {
+                    if (result["success"]) {
+                        container.removeChild(chapter_container)
+                        refreshIndices()
+                    }
+                }
+            })
+        }
+    </script>
+{%endmacro%}
+        

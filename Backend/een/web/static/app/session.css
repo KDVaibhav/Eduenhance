@@ -1,0 +1,48 @@
+/* Compiled file, do net edit */
+
+
+/* File: ./een/web\blueprints\session\css\session.css */
+
+#timer {
+    font-size: 45px;
+    text-align: center;
+}
+
+.small-list-block {
+    max-height: 150px;
+    overflow-y: scroll;
+}
+
+.proposal-block {
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f5f5f5;
+    border-top: 1px solid #f0f0f0;
+    z-index:999;
+}
+
+.footer .row {
+    margin: 5px 15px;
+}
+
+#session-users-list {
+    padding-left: 15px;
+}
+
+.kick {
+    opacity: .3;
+}
+
+.kick:hover {
+    opacity: 1;
+}
+
+.info-line {
+    border-bottom: 1px solid #e0e0e0;
+}

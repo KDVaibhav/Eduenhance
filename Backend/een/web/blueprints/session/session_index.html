@@ -1,0 +1,27 @@
+{% extends "general.html" %}
+{% set active_page = "session" %}
+
+{% block body %}
+<div id="connection-lost" class="alert alert-danger hidden" role="alert">Connection lost.</div>
+<link rel="stylesheet" href="/static/app/session.css">
+<script src="/static/app/session.js"></script>
+{% include "session_widgets.html" %}
+{% include "session_view.html" %}
+
+
+<script id="session-key" type="text">
+{{session._id}}
+</script>
+
+<script id="session-data" type="application/json">
+{{session|tojson}}
+</script>
+
+<script id="proposals" type="application/json">
+{{proposals|tojson}}
+</script>
+{% endblock %}
+
+{% block footer %}
+{% include "session_footer.html" %}
+{% endblock %}

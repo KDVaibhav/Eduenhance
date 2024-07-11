@@ -1,0 +1,16 @@
+{%raw%}
+<div class="panel panel-default">
+    <div class="panel-heading">Agenda</div>
+    <div class="panel-body">
+        {{#if agenda}}
+            <p>{{agenda}}</p>
+        {{/if}}
+
+        <ol>
+        {{#each proposals}}
+            <li>{{title}}</li>
+        {{/each}}
+        </ol>
+    </div>
+</div>
+{%endraw%}

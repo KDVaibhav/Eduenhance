@@ -1,0 +1,263 @@
+{% macro index(action='', allow_edit=true) -%}
+{%if allow_edit%}
+    <div class="marks-container">
+        <h4>Update Marks</h4>    
+        <form action="{{ action }}" method="post">
+            <select id="classes-edit" onchange="render_subjects_edit()" name="class" class="btn btn-primary">
+                <option value="">Select a class</option>
+                {%for class in classes%}
+                    <option>{{class}}</option>
+                {%endfor%}
+            </select>
+
+            <select id="subjects-edit" name="subject" class="btn btn-primary">
+                <option value="">Select a subject</option>
+                {%for subject in subjects%}
+                    <option>{{subject}}</option>
+                {%endfor%}
+            </select>
+            <select id="exams-edit" name="examid" class="btn btn-primary">
+                <option value="">Select a exam</option>
+                {%for exam in exams%}
+                    <option value="{{exam._id}}">{{exam.name}}</option>
+                {%endfor%}
+            </select>
+            <button type="button" onclick="showStudents()" class="btn btn-info">Show</button>
+            <table style="display: none;" id="students-edit" class="table table-hover">
+                <caption>
+                    <strong>Total Marks (For Weekly Tests keep it 10) </strong>
+                    <input name="total" placeholder="Total Marks" type="number" value="10">
+                </caption>
+                <thead>
+                    <tr>
+                        <th>Roll</th>
+                        <th>Name</th>
+                        <th>Marks</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <br/>
+            <input type="submit" value="Submit" disabled id="submit_button" class="btn btn-info">
+        </form>
+    </div>
+    <script>
+        function render_subjects_edit() {
+            var subjects = {{subjects_js | safe}}
+            var e = document.getElementById("classes-edit")
+            var class_ = e.options[e.selectedIndex].value
+            document.getElementById("subjects-edit").innerHTML = 
+                "<option value=\"\">Select a subject</option>"+
+                subjects[class_].map((s) => "<option>"+s+"</option>").join("")
+        }
+        function showStudents() {
+            var e = document.getElementById("classes-edit")
+            var class_ = e.options[e.selectedIndex].value
+            var e = document.getElementById("subjects-edit")
+            var subject = e.options[e.selectedIndex].value
+            var e = document.getElementById("exams-edit")
+            var exam = e.options[e.selectedIndex].value
+            if (!class_ || !subject || !exam) {
+                alert("Class, Subject or Exam is not selected.")
+                return
+            }
+            var students = {{students|safe}}
+            var models = {{models|safe}}
+            $("#students-edit").css("display", "block")
+            $("#students-edit tbody").html("")
+            if (Object.keys(models).includes(class_)) {
+                if (Object.keys(models[class_]).includes(subject)) {
+                    if (Object.keys(models[class_][subject]).includes(exam)) {
+                        $("#students-edit caption input").attr("value", models[class_][subject][exam]['total'])
+                    }
+                    else $("#students-edit caption input").attr("value", 10)
+                }
+                else $("#students-edit caption input").attr("value", 10)
+            }
+            else $("#students-edit caption input").attr("value", 10)
+
+            $("#submit_button").removeAttr("disabled")
+            for (i of students.keys()) {
+                if (students[i].class == class_) {
+                    var value = ""
+                    if (Object.keys(models).includes(class_)) {
+                        if (Object.keys(models[class_]).includes(subject)) {
+                            if (Object.keys(models[class_][subject]).includes(exam)) {
+                                if (Object.keys(models[class_][subject][exam]).includes(students[i].login)) {
+                                    value = " value='" + models[class_][subject][exam][students[i].login] + "'"
+                                }
+                            }
+                        }
+                    }
+                    $("#students-edit tbody").append(`
+                        <tr>
+                            <td>`+students[i].login+`</td>
+                            <td>`+students[i].name+`</td>
+                            <td>
+                                <input type="number" step="any"`+value+` name="`+students[i].login+`">
+                            </td>
+                        </tr>
+                    `)
+                }
+            }
+        }
+    </script>
+{%endif%}
+
+
+
+{%if allow_view%}
+    <div class="marks-container">
+        <h4>View Marks</h4>    
+        <select id="classes-view" name="class" class="btn btn-primary">
+            <option value="">Select a class</option>
+            {%for class in classes%}
+                <option>{{class}}</option>
+            {%endfor%}
+        </select>
+
+        <!-- <select id="subjects-view" name="subject" class="btn btn-primary">
+            <option value="">Select a subject</option>
+            {%for subject in subjects%}
+                <option>{{subject}}</option>
+            {%endfor%}
+        </select> -->
+        <select id="exams-view" name="examid" class="btn btn-primary">
+            <option value="">Select a exam</option>
+            {%for exam in exams%}
+                <option value="{{exam._id}}">{{exam.name}}</option>
+            {%endfor%}
+        </select>
+        <button type="button" onclick="showMarks()" class="btn btn-info">Show</button>
+        <table style="display: none;" id="students-view" class="table table-hover">
+            <thead>
+                <tr>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+        // function render_subjects_view() {
+        //     var subjects = {{subjects_js | safe}}
+        //     var e = document.getElementById("classes-view")
+        //     var class_ = e.options[e.selectedIndex].value
+        //     document.getElementById("subjects-view").innerHTML = 
+        //         "<option value=\"\">Select a subject</option>"+
+        //         subjects[class_].map((s) => "<option>"+s+"</option>").join("")
+        // }
+        function showMarks() {
+            var e = document.getElementById("classes-view")
+            var class_ = e.options[e.selectedIndex].value
+            e = document.getElementById("exams-view")
+            var exam = e.options[e.selectedIndex].value
+            if (!class_ || !exam) {
+                alert("Class or Exam is not selected.")
+                return
+            }
+            var students = {{students|safe}}
+            var models = {{models|safe}}
+            var subjects = {{subjects_js | safe}}
+            var marks = []
+            var students_class = []
+            if (Object.keys(models).includes(class_)) {
+                for (s of subjects[class_]) {
+                    if (Object.keys(models[class_]).includes(s)) {
+                        marks.push({
+                            subject: s,
+                            marks: (Object.keys(models[class_][s]).includes(exam)) ? models[class_][s][exam] : {}
+                        })
+                    }
+                }
+            }
+            $("#students-view tbody").html("")
+            for (i of students.keys()) {
+                if (students[i].class == class_) {
+                    students_class.push({
+                        login: students[i].login,
+                        name: students[i].name
+                    })
+                    $("#students-view tbody").append(`
+                        <tr>
+                            <td>`+students[i].login+`</td>
+                            <td>`+students[i].name+`</td>
+                        </tr>
+                    `)
+                }
+            }
+            console.log()
+            $("#students-view").css("display", "block")
+            $("#submit_button").removeAttr("disabled")
+            $("#students-view thead tr").html(
+                `<th>Roll</th>
+                <th>Name</th>`
+                // + marks.map((h) => {
+                //     const x = (Object.keys(h.marks).includes('total')) ? h.marks['total'] : "";
+                //     return "<th>"+h.subject+"<br>("+ x +")</th>"
+                // })
+            )
+            for (h of marks) {
+                var x = (Object.keys(h.marks).includes('total')) ? h.marks['total'] : "";
+                $("#students-view thead tr").append("<th>"+h.subject+"("+ x +")</th>")
+                for (var i=0; i< students_class.length; i++) {
+                    e = document.querySelectorAll("#students-view tbody tr")[i]
+                    if (x) e.innerHTML += "<td align='center'>"+ h.marks[students_class[i].login]+"</td>"
+                    else e.innerHTML += "<td></td>"
+                }
+            }
+            // for (i of students.keys()) {
+            //     if (students[i].class == class_)
+            //         $("#students-view tbody").append(`
+            //             <tr>
+            //                 <td>`+students[i].login+`</td>
+            //                 <td>`+students[i].name+`</td>`+
+            //                 marks.map((h) => {
+            //                     if (Object.keys(h.marks).includes('total'))
+            //                         return "<td>"+h.marks[students[i].login]+"</td>"
+            //                     return ""
+            //                 })
+            //             +`</tr>
+            //         `)
+            // }
+        }
+    </script>
+{%endif%}
+{%if model_class%}
+    <div class="marks-container">
+        <h4>Your Marks</h4>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Exam</th>
+                    {%for subject in mysubjects%}
+                        <th>{{subject}}</th>
+                    {%endfor%}
+                </tr>
+            </thead>
+            <tbody>
+                {%for exam in exams%}
+                    <tr>
+                        <td>{{exam.name}}</td>
+                        {%for subject in mysubjects%}
+                            <td>
+                                {%if (subject in model_class.keys()) and (exam._id in model_class[subject].keys())%}
+                                    {%if roll in model_class[subject][exam._id].keys()%}
+                                        {{model_class[subject][exam._id][roll]}}({{model_class[subject][exam._id]['total']}})
+                                    {%else%}
+                                        NA
+                                    {%endif%}
+                                {%endif%}
+                            </td>
+                        {%endfor%}
+                    </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+{%endif%}
+<style>
+    .attendance-container {
+        margin: 40px;
+    }
+</style>
+{%endmacro%}

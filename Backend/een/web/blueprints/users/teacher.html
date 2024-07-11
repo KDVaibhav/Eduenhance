@@ -1,0 +1,291 @@
+<div {%if model.role != 'Teacher'%} style="display: none;" {%endif%} class="teacher">
+
+<!-- Aadhar -->
+<div class="form-group">
+    <label for="aadhar" class="col-sm-2 control-label">Aadhar</label>
+    <div class="col-sm-10">
+        <input
+            name="aadhar" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Aadhar"
+            value="{{ model.aadhar }}"
+            autocomplete="off"
+        >
+    </div>
+</div>
+
+<!-- PAN -->
+<div class="form-group">
+    <label for="pan" class="col-sm-2 control-label">PAN</label>
+    <div class="col-sm-10">
+        <input
+            name="pan" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="PAN"
+            value="{{ model.pan }}"
+            autocomplete="off"
+        >
+    </div>
+</div>
+
+<!-- VoterID -->
+<div class="form-group">
+    <label for="voterid" class="col-sm-2 control-label">VoterID</label>
+    <div class="col-sm-10">
+        <input
+            name="voterid" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="VoterID"
+            value="{{ model.voterid }}"
+            autocomplete="off"
+        >
+    </div>
+</div>
+
+<!-- Qualifications -->
+<div class="form-group">
+    <label class="col-sm-2 control-label">Qualifications</label>
+    <div class="col-sm-10">
+        <table id="quali-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Qualification</th>
+                    <th>University</th>
+                    <th>Degree</th>
+                    <th>Year</th>
+                    <th>Percentage</th>
+                    <th>Subject</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%if model and model.qualifications%}
+                {%with qs = model.qualifications%}
+                {%for i in range(qs|length)%}
+                <tr>
+                    <td>{{i+1}}</td>
+                    <td><textarea {%if model and (not model.allow_edit)%}disabled{%endif%} name="q[]" rows="1" cols="10">{{qs[i].q}}</textarea></td>
+                    <td><textarea {%if model and (not model.allow_edit)%}disabled{%endif%} name="q_university[]" rows="1" cols="10">{{qs[i].q_university}}</textarea></td>
+                    <td><textarea {%if model and (not model.allow_edit)%}disabled{%endif%} name="q_degree[]" rows="1" cols="20">{{qs[i].q_degree}}</textarea></td>
+                    <td><textarea {%if model and (not model.allow_edit)%}disabled{%endif%} name="q_year[]" rows="1" cols="10">{{qs[i].q_year}}</textarea></td>
+                    <td><textarea {%if model and (not model.allow_edit)%}disabled{%endif%} name="q_percentage[]" rows="1" cols="10">{{qs[i].q_percentage}}</textarea></td>
+                    <td><textarea {%if model and (not model.allow_edit)%}disabled{%endif%} name="q_subject[]" rows="1" cols="20">{{qs[i].q_subject}}</textarea></td>
+                    <td>
+                        <span  
+                            {%if model and (not model.allow_edit)%}disabled{%endif%}
+                            class="glyphicon glyphicon-trash quali-delete" 
+                            aria-hidden="true"
+                            style="cursor: pointer;"
+                            onclick="deleteRow(this)"
+                        ></span>
+                    </td>
+                </tr>
+                {%endfor%}
+                {%endwith%}
+                {%else%}
+                <tr>
+                    <td>1</td>
+                    <td><textarea name="q[]" rows="1" cols="10"></textarea></td>
+                    <td><textarea name="q_university[]" rows="1" cols="10"></textarea></td>
+                    <td><textarea name="q_degree[]" rows="1" cols="20"></textarea></td>
+                    <td><textarea name="q_year[]" rows="1" cols="10"></textarea></td>
+                    <td><textarea name="q_percentage[]" rows="1" cols="10"></textarea></td>
+                    <td><textarea name="q_subject[]" rows="1" cols="20"></textarea></td>
+                    <td>
+                        <span 
+                            class="glyphicon glyphicon-trash quali-delete" 
+                            aria-hidden="true"
+                            style="cursor: pointer;"
+                            onclick="deleteRow(this)"
+                        ></span>
+                    </td>
+                </tr>
+                {%endif%}
+            </tbody>
+        </table>
+        <button {%if model and (not model.allow_edit)%}disabled{%endif%} type="button" id="quali-add">Add new row</button>
+    </div>
+</div>
+
+<!-- Bank Account -->
+<div class="form-group">
+    <label class="col-sm-2 control-label">Bank Account Details</label>
+    <div class="col-sm-3">
+        <input
+            type="number"
+            name="bank_number" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Account Number"
+            value="{{ model.bank['number'] if model.bank else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-3">
+        <input
+            name="bank_ifsc" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="IFSC Code"
+            value="{{ model.bank['ifsc'] if model.bank else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-4">
+        <input
+            name="bank_name" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Account Name"
+            value="{{ model.bank['name'] if model.bank else "" }}"
+            autocomplete="off"
+        >
+    </div>
+</div>
+
+<!-- Guardian Details -->
+<div class="form-group">
+    <label class="col-sm-2 control-label">Guardian Details</label>
+    <div class="col-sm-3">
+        <input
+            name="guardian_name" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Name"
+            value="{{ model.guardian['name'] if model.guardian else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-3">
+        <input
+            type="tel"
+            name="guardian_phone" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Phone"
+            value="{{ model.guardian['phone'] if model.guardian else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-4">
+        <input
+            type="email"
+            name="guardian_email" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Email"
+            value="{{ model.guardian['email'] if model.guardian else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-2"></div>
+    <div class="col-sm-10">
+        <textarea
+            name="guardian_address" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Address"
+            autocomplete="off"
+        >{{ model.guardian['address'] if model.guardian else "" }}</textarea>
+    </div>
+</div>
+
+<!-- Emergency Contact -->
+<div class="form-group">
+    <label class="col-sm-2 control-label">Emergency Contact</label>
+    <div class="col-sm-3">
+        <input
+            name="emergency_name" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Contact Person"
+            value="{{ model.emergency['name'] if model.emergency else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-3">
+        <input
+            type="tel"
+            name="emergency_phone" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Contact Number"
+            value="{{ model.emergency['phone'] if model.emergency else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-4">
+        <textarea
+            name="emergency_address" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Contact Address"
+            autocomplete="off"
+        >{{ model.emergency['address'] if model.emergency else "" }}</textarea>
+    </div>
+</div>
+
+<!-- Date of Joining -->
+<div class="form-group">
+    <label class="col-sm-2 control-label">Date of Joining</label>
+    <div class="col-sm-10">
+        <input
+            type="date"
+            name="doj"
+            class="form-control"
+            placeholder="DOB"
+            value="{{ model.doj }}"
+            autocomplete="off"
+            {%if model and (not model.allow_edit)%}readonly{%endif%}>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        refreshIndices()
+        $("#quali-add").click(() => {
+            var newIndex = document.getElementById("quali-table").rows.length
+            $("#quali-table tbody").append(`
+                <tr>
+                    <td>`+String(newIndex)+`</td>
+                    <td><textarea name="q[]" rows="1" cols="10"></textarea></td>
+                    <td><textarea name="q_university[]" rows="1" cols="10"></textarea></td>
+                    <td><textarea name="q_degree[]" rows="1" cols="20"></textarea></td>
+                    <td><textarea name="q_year[]" rows="1" cols="10"></textarea></td>
+                    <td><textarea name="q_percentage[]" rows="1" cols="10"></textarea></td>
+                    <td><textarea name="q_subject[]" rows="1" cols="20"></textarea></td>
+                    <td>
+                        <span 
+                            class="glyphicon glyphicon-trash quali-delete" 
+                            aria-hidden="true"
+                            style="cursor: pointer;"
+                            onclick="deleteRow(this)"
+                        ></span>
+                    </td>
+                </tr>
+            `)
+        })
+    })
+
+    var refreshIndices = () => {
+        var rows = document.getElementById("quali-table").rows
+        for (var i=1; i<rows.length; i++) {
+            rows[i].children[0].innerHTML = String(i)
+        }
+    }
+
+    function deleteRow(x) {
+        if (document.getElementById("quali-table").rows.length === 2) {
+            alert("You must have at least one qualification.")
+            return
+        }
+        var row = x.parentElement.parentElement
+        document.getElementById("quali-table").deleteRow(row.rowIndex)
+        refreshIndices()
+    }
+</script>
+</div>

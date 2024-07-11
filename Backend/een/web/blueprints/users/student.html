@@ -1,0 +1,130 @@
+<div {%if model.role != 'Student'%} style="display: none;" {%endif%} class="student">
+<!-- Class -->
+<div class="form-group student">
+    <label for="class" class="col-sm-2 control-label">Class<span class="text-danger"> *</span></label>
+    <div class="col-sm-10">
+        <select 
+            name="class" 
+            class="selectpicker form-control student_required" 
+            title="Choose a class" 
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+        >
+            {% for class in classes %}
+                <option {%if model.class|default('')==class%}selected{%endif%}>{{class}}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<!-- Aadhar -->
+<div class="form-group">
+    <label for="aadhar" class="col-sm-2 control-label">Aadhar</label>
+    <div class="col-sm-10">
+        <input
+            name="aadhar" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Aadhar"
+            value="{{ model.aadhar }}"
+            autocomplete="off"
+        >
+    </div>
+</div>
+
+<!-- Guardian Details -->
+<div class="form-group">
+    <label class="col-sm-2 control-label">Guardian Details</label>
+    <div class="col-sm-3">
+        <input
+            name="guardian_name" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Name"
+            value="{{ model.guardian['name'] if model.guardian else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-3">
+        <input
+            type="tel"
+            name="guardian_phone" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Phone"
+            value="{{ model.guardian['phone'] if model.guardian else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-4">
+        <input
+            type="email"
+            name="guardian_email" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Email"
+            value="{{ model.guardian['email'] if model.guardian else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-2"></div>
+    <div class="col-sm-10">
+        <textarea
+            name="guardian_address" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Address"
+            autocomplete="off"
+        >{{ model.guardian['address'] if model.guardian else "" }}</textarea>
+    </div>
+</div>
+
+<!-- Emergency Contact -->
+<div class="form-group">
+    <label class="col-sm-2 control-label">Emergency Contact</label>
+    <div class="col-sm-3">
+        <input
+            name="emergency_name" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Contact Person"
+            value="{{ model.emergency['name'] if model.emergency else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-3">
+        <input
+            type="tel"
+            name="emergency_phone" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Contact Number"
+            value="{{ model.emergency['phone'] if model.emergency else "" }}"
+            autocomplete="off"
+        >
+    </div>
+    <div class="col-sm-4">
+        <textarea
+            name="emergency_address" 
+            class="form-control"
+            {%if model and (not model.allow_edit)%}disabled{%endif%}
+            placeholder="Contact Address"
+            autocomplete="off"
+        >{{ model.emergency['address'] if model.emergency else "" }}</textarea>
+    </div>
+</div>
+
+<!-- Date of Joining -->
+<div class="form-group">
+    <label class="col-sm-2 control-label">Date of Joining</label>
+    <div class="col-sm-10">
+        <input
+            type="date"
+            name="doj"
+            class="form-control"
+            placeholder="DOB"
+            value="{{ model.doj }}"
+            autocomplete="off"
+            {%if model and (not model.allow_edit)%}readonly{%endif%}>
+    </div>
+</div>
+</div>

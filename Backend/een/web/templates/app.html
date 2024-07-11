@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <link rel="stylesheet" href="/static/vendor/bootstrap-3.3.7/css/bootstrap-flaty.min.css">
+        <link rel="stylesheet" href="/static/vendor/bootstrap-select-1.12.4/css/bootstrap-select.min.css">
+        <link rel="stylesheet" href="/static/vendor/bootstrap-datepicker-1.7.1/css/bootstrap-datepicker3.min.css">
+        <link rel="stylesheet" href="/static/vendor/bootstrap-timepicker/css/bootstrap-timepicker.min.css">
+        <link rel="stylesheet" href="/static/vendor/datatables/datatables.min.css">
+        <link rel="stylesheet" href="/static/vendor/summernote/summernote.css">
+        <link rel="stylesheet" href="/static/vendor/jquery-confirm/jquery-confirm.min.css">
+
+        <link rel="stylesheet" href="/static/main.css">
+        <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
+
+        <title>{% block title %}EduEnhance{% endblock %}</title>
+    </head>
+
+
+    <body>
+        <script src="/static/vendor/jquery-3.2.1/js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/socket.io-2.0.3/socket.io.js"></script>
+        <script type="text/javascript" src="/static/vendor/handlebars/handlebars.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/bootstrap-select-1.12.4/js/bootstrap-select.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/bootstrap-datepicker-1.7.1/js/bootstrap-datepicker.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/datatables/datatables.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/summernote/summernote.js"></script>
+        <script type="text/javascript" src="/static/vendor/chartjs/chart.js"></script>
+        <script type="text/javascript" src="/static/vendor/jquery-confirm/jquery-confirm.min.js"></script>
+        <script type="text/javascript" src="/static/vendor/jquery-filedownload/jquery.fileDownload.js"></script>
+        <script type="text/javascript" src="/static/lib/ajax.js"></script>
+        <script type="text/javascript" src="/static/lib/handlebars.js"></script>
+        <script type="text/javascript" src="/static/lib/alerts.js"></script>
+        <script type="text/javascript" src="/static/lib/auxi.js"></script>
+
+        {% block js %}{% endblock %}
+
+        {% block jumbotron %}{% endblock %}
+
+        <div class="container">
+            {% block navigation %}{% endblock %}
+            {% include "flash.html" %}
+
+            {% block body %}{% endblock %}
+        </div>
+
+        {% block footer %}{% endblock %}
+    </body>
+</html>

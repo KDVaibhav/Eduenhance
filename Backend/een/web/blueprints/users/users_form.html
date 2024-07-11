@@ -1,0 +1,352 @@
+{% macro form(model, action='', allow_edit=true) -%}
+<div style="margin: 10px;">
+    <div class="col-sm-10"></div>
+    <div class="col-sm-2">
+        {%if model and model.photo %}
+            <img src="{{'/static/uploads/'+model.photo}}" width="100px">
+        {%endif%}
+        <br/>
+        {%if model and model.sign %}
+            <img src="{{'/static/uploads/'+model.sign}}" width="100px">
+        {%endif%}
+    </div>
+</div>
+<form action="{{ action }}" method="post" class="form-horizontal" enctype = "multipart/form-data">
+    <!-- Name -->
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Name<span class="text-danger"> *</span></label>
+        <div class="col-sm-10">
+            <input id="name"
+                   name="name"
+                   class="form-control input-lg"
+                   placeholder="Name"
+                   value="{{ model.name }}"
+                   autocomplete="off"
+                   {%if model and (not model.allow_edit)%}readonly{%endif%}
+                   required>
+        </div>
+    </div>
+    {% if model.allow_edit %}
+    <!-- Login -->
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Login (ID)</label>
+        <div class="col-sm-10">
+            <input name="login"
+                   class="form-control"
+                   placeholder="Login"
+                   value="{{ model.login }}"
+                   autocomplete="off"
+                   readonly>
+        </div>
+    </div>
+    {%endif%}
+
+    {% if model.allow_edit or (not model) %}
+    <!-- Password -->
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Password<span class="text-danger"> *</span></label>
+        <div class="col-sm-10">
+            <input name="password"
+                   class="form-control"
+                   placeholder="Password"
+                   value="{{ model.password }}"
+                   autocomplete="off"
+                   type="password"
+                   {%if model and (not model.allow_edit)%}readonly{%endif%}
+                   required>
+        </div>
+    </div>
+    {%endif%}
+
+    <!-- Role -->
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Role<span class="text-danger"> *</span></label>
+        <div class="col-sm-10">
+            <select 
+                name="role" 
+                id="role"
+                class="selectpicker form-control" 
+                title="Choose a role" 
+                {%if model%}disabled{%endif%}
+                onchange="setConditionalFields()"
+                required
+            >
+                {% for role in roles %}
+                    <option {%if model.role|default('')==role%}selected{%endif%}>{{role}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Mobile Number -->
+    <div class="form-group">
+        <label for="mobile" class="col-sm-2 control-label">Mobile</label>
+        <div class="col-sm-10">
+            <input
+                type="tel"
+                name="mobile" 
+                class="form-control"
+                {%if model and (not model.allow_edit)%}disabled{%endif%}
+                placeholder="Mobile"
+                value="{{ model.mobile }}"
+                autocomplete="off"
+            >
+        </div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Email</label>
+        <div class="col-sm-10">
+            <input
+                type="email"
+                name="email" 
+                class="form-control"
+                {%if model and (not model.allow_edit)%}disabled{%endif%}
+                placeholder="Email"
+                value="{{ model.email }}"
+                autocomplete="off"
+            >
+        </div>
+    </div>
+
+    <!-- Category -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Category</label>
+        <div class="col-sm-10">
+            <select 
+                name="category" 
+                class="selectpicker form-control" 
+                title="Choose a category" 
+                {%if model and (not model.allow_edit)%}disabled{%endif%}
+            >
+                {% for category in categories %}
+                    <option {%if model.category|default('')==category%}selected{%endif%}>{{category}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Residential Address -->
+    <div class="form-group">
+        <label for="address" class="col-sm-2 control-label">Permanent Address</label>
+        <div class="col-sm-10">
+            <textarea
+                name="address" 
+                class="form-control"
+                {%if model and (not model.allow_edit)%}disabled{%endif%}
+            >{{model.address}}</textarea>
+        </div>
+    </div>
+
+    <!-- Current Address -->
+    <div class="form-group">
+        <label for="address_current" class="col-sm-2 control-label">Current Address</label>
+        <div class="col-sm-10">
+            <textarea
+                name="address_current" 
+                class="form-control"
+                {%if model and (not model.allow_edit)%}disabled{%endif%}
+            >{{model.address_current}}</textarea>
+        </div>
+    </div>
+
+    <!-- Date of Birth -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Date of Birth</label>
+        <div class="col-sm-10">
+            <input
+                type="date"
+                name="dob"
+                class="form-control"
+                placeholder="DOB"
+                value="{{ model.dob }}"
+                autocomplete="off"
+                {%if model and (not model.allow_edit)%}readonly{%endif%}>
+        </div>
+    </div>
+
+    <!-- Gender -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Gender<span class="text-danger"> *</span></label>
+        <div class="col-sm-10">
+            <select 
+                name="gender" 
+                class="selectpicker form-control" 
+                title="Choose a gender" 
+                {%if model and (not model.allow_edit)%}disabled{%endif%}
+                required
+            >
+                <option value="M" {%if model.gender|default('')=='M'%}selected{%endif%}>Male</option>
+                <option value="F" {%if model.gender|default('')=='F'%}selected{%endif%}>Female</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Blood Group -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Blood Group</label>
+        <div class="col-sm-10">
+            <select 
+                name="blgroup" 
+                class="selectpicker form-control" 
+                title="Choose a blood group" 
+                {%if model and (not model.allow_edit)%}disabled{%endif%}
+            >
+                {% for blgroup in blgroups %}
+                    <option {%if model.blgroup|default('')==blgroup%}selected{%endif%}>{{blgroup}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    {% include "student.html" %}
+    {% include "teacher.html" %}
+
+    <!-- Photo -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Photo</label>
+        <div class="col-sm-10">
+            <input
+                name="photo"
+                type="file"
+                accept=".jpg,.jpeg, .png"
+                class="form-control input-lg"
+                autocomplete="off"
+                {%if model and (not model.allow_edit)%}readonly{%endif%}
+            >
+        </div>
+    </div>
+
+    <!-- Signature -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Signature</label>
+        <div class="col-sm-10">
+            <input
+                name="sign"
+                type="file"
+                accept=".jpg,.jpeg, .png"
+                class="form-control input-lg"
+                autocomplete="off"
+                {%if model and (not model.allow_edit)%}readonly{%endif%}
+            >
+        </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="form-group">
+        <label class="col-sm-2 control-label">Documents</label>
+        <div class="col-sm-10">
+            <input
+                name="files[]"
+                multiple
+                type="file"
+                class="form-control input-lg"
+                autocomplete="off"
+                {%if model and (not model.allow_edit)%}readonly{%endif%}
+            >
+
+            {%if model and model.files and model.allow_edit %}
+                {%for id in model.files.keys()%}
+                <div data-id="{{id}}">
+                    <a href="{{ '/static/uploads/' + id + model.files[id]['extension'] }}" target="_blank">
+                        <span class="glyphicon glyphicon-file"></span>
+                        {{model.files[id]["viewname"]}}
+                    </a>
+                    <a class="file-delete" data-id="{{id}}" style="cursor: pointer; margin-left: 20px;">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </a>
+                </div>
+                {%endfor%}
+            {%endif%}
+        </div>
+    </div>
+
+    <!-- Enrolled -->
+    <div class="form-group">
+        <label for="enrolled" class="col-sm-2 control-label">Enrolled</label>
+        <div class="col-sm-10">
+            <div class="checkbox">
+                <label>
+                    <input id="enrolled"
+                           name="enrolled"
+                           type="checkbox"
+                           {%if model and model.suspend and not model.suspend.value%}checked{%endif%}> Is User Enrolled?
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reason -->
+    <div class="form-group" style="display: none;">
+        <label for="name" class="col-sm-2 control-label">Reason</label>
+        <div class="col-sm-10">
+            <input name="suspend-reason"
+                   class="form-control"
+                   placeholder="Reason"
+                   value="{{ model.suspend.reason if model and model.suspend else '' }}"
+                   autocomplete="off"
+                   {%if model and (not model.allow_edit)%}readonly{%endif%}>
+        </div>
+    </div>
+
+    <!-- Submit -->
+    {% if (not model) or model.allow_edit %}
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <input id="submit"
+                   type="submit"
+                   class="form-control btn btn-primary">
+        </div>
+    </div>
+    {% endif %}
+</form>
+
+
+<script>
+    $(document).ready(function() {
+        $(".file-delete").on("click", function(e) {
+            e.preventDefault()
+            var id = $(this).data('id')
+            $.ajax({
+                url: "/{{url}}/{{model._id}}/"+id,
+                type: 'DELETE',
+                success: function(result) {
+                    if (result["success"]) {
+                        $("div[data-id='" + id + "']").remove()
+                    }
+                }
+            })
+        })
+    })
+
+    function setConditionalFields() {
+        var blocks = {
+            "Teacher": document.getElementsByClassName("teacher"),
+            "Student": document.getElementsByClassName('student')
+        }
+        var required_fields = {
+            "Teacher": document.getElementsByClassName("teacher_required"),
+            "Student": document.getElementsByClassName('student_required')
+        }
+        var e = document.getElementById("role")
+        var role = e.options[e.selectedIndex].value
+        var keys = Object.keys(blocks)
+        for (var i=0; i<keys.length; i++) {
+            if (role === keys[i]) {
+                for (var j=0; j<blocks[keys[i]].length; j++)
+                    blocks[keys[i]][j].style.display = "block"
+                for (var j=0; j<required_fields[keys[i]].length; j++)
+                    required_fields[keys[i]][j].setAttribute("required", "")
+            }
+            else {
+                for (var j=0; j<blocks[keys[i]].length; j++)
+                    blocks[keys[i]][j].style.display = "none"
+                for (var j=0; j<required_fields[keys[i]].length; j++)
+                    required_fields[keys[i]][j].removeAttribute("required")
+            }
+        }
+    }
+</script>
+{%if not model%} <script>setConditionalFields("")</script> {%endif%}
+{%- endmacro %}

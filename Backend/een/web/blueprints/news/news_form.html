@@ -1,0 +1,66 @@
+{% macro form(model, action='', allow_edit=true) -%}
+    <form action="{{ action }}" method="post" class="form-horizontal">
+
+        <!-- Title -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Title</label>
+            <div class="col-sm-10">
+                <input
+                    name="title"
+                    class="form-control input-lg"
+                    placeholder="Title"
+                    value="{{ model.title }}"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                >
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Content</label>
+            <div class="col-sm-10">
+                <textarea
+                    name="content"
+                    class="form-control"
+                    placeholder="Content"
+                    rows="3"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                >{{ model.content }}</textarea>
+            </div>
+        </div>
+        
+        <!-- Viewer -->
+        <div class="form-group">
+            <label class="col-sm-2 control-label">Viewer</label>
+            <div class="col-sm-10">
+                <select
+                    name="viewer"
+                    class="selectpicker form-control"
+                    title="Select a Role"
+                    value="{{ model.viewer }}"
+                    autocomplete="off"
+                    {%if not allow_edit%}readonly{%endif%}
+                >
+                    <option {%if model.viewer|default('')=='All'%}selected{%endif%}>All</option>
+                    {% for r in roles %}
+                        <option {%if model.viewer|default('')==r.name%}selected{%endif%}>{{r.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        {%if allow_edit%}
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input id="submit"
+                    type="submit"
+                    class="form-control btn btn-primary"
+                >
+            </div>
+        </div>
+        {%endif%}
+    </form>
+{%- endmacro %}

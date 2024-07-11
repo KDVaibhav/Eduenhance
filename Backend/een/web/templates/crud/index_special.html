@@ -1,0 +1,6 @@
+{% extends "crud/crud.html" %}
+
+{% block body %}
+    {% import index as i with context %}
+    {{ i.index(action="/" + url + "/", allow_edit=allow_edit) }}
+{%endblock%}

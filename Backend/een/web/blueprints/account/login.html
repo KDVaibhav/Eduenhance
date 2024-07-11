@@ -1,0 +1,25 @@
+{% extends "general.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block body %}
+
+<form class="form-signin" action="/account/login" method="post">
+    <h2 class="form-signin-heading">Please sign in</h2>
+    <label for="login" class="sr-only">Login or name</label>
+    <input id="login" name="login" class="form-control" placeholder="Login or name" autofocus>
+    <label for="password" class="sr-only">Password</label>
+    <input type="password" id="password" name="password" class="form-control" placeholder="Password">
+    <label for="school" class="sr-only">School</label>
+    <select id="school" name="school" class="form-control selectpicker" placeholder="School" title="Select a school">
+        {% for id, name in schools %}
+            <option value="{{id}}">{{name}}</option>
+        {% endfor %}
+    </select>
+    <div class="checkbox">
+        <label><input type="checkbox" name="remember-me"> Remember me</label>
+    </div>
+
+    <button id="signin" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+</form>
+{% endblock %}

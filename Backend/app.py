@@ -1,6 +1,7 @@
 import os
 from flask import Flask, redirect, request, current_app, send_from_directory
 from flask_login import LoginManager, current_user
+from flask_cors import CORS
 
 from een.channel import init
 from een.db import users as users_db
@@ -38,6 +39,7 @@ app.secret_key = 'some_secret'
 app.debug = True
 app.json_encoder = EenJsonEncoder
 channel = init(app)
+CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
 
 from een.web.blueprints.account import account
 from een.web.blueprints.session import session

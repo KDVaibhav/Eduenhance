@@ -19,3 +19,9 @@
 # Automatic compilation
   pip3 install watchdog
   python3 ./tools/assets_watchdog.py
+
+
+# Error during Flask Run
+
+Error: While importing 'app', an ImportError was raised.
+

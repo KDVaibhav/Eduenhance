@@ -1,40 +1,40 @@
 .assignments-container {
   padding: 20px;
-  max-width: 800px;
-  margin: auto;
+  font-family: Arial, sans-serif;
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
+.header {
+  font-size: 24px;
+  margin-bottom: 10px;
 }
 
-.toolbar {
+.controls {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-.add-button,
-.submit-button {
-  background-color: #007bff;
+.add-button {
+  background-color: #4CAF50;
   color: white;
   border: none;
-  padding: 10px 15px;
+  padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.add-button:hover,
-.submit-button:hover {
-  background-color: #0056b3;
+.add-button:hover {
+  background-color: #45a049;
 }
 
-.filter-select,
 .sort-select {
   padding: 10px;
-  border-radius: 5px;
   border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: white;
+  cursor: pointer;
 }
 
 .assignments-list {
@@ -47,11 +47,56 @@ h2 {
   border-radius: 5px;
   padding: 15px;
   margin-bottom: 10px;
-  background-color: #f9f9f9;
+  position: relative;
 }
 
-.assignment-item h3 {
-  margin-top: 0;
+.assignment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  font-weight: bold;
+}
+
+.status.not-submitted {
+  color: #FF6347;
+}
+
+.status.submitted {
+  color: #4CAF50;
+}
+
+.submission-options {
+  margin-top: 10px;
+}
+
+.submission-options textarea {
+  width: calc(100% - 22px);
+  height: 100px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.submission-options input[type="file"] {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.submit-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
 }
 
 .modal {
@@ -60,14 +105,14 @@ h2 {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
 .modal-content {
-  background-color: white;
+  background: white;
   padding: 20px;
   border-radius: 5px;
   width: 500px;
@@ -78,7 +123,7 @@ h2 {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
 }
 
@@ -86,25 +131,19 @@ h2 {
   margin-bottom: 15px;
 }
 
-label {
+.form-group label {
   display: block;
   margin-bottom: 5px;
 }
 
-input,
-textarea,
-.date-picker {
+.form-group input,
+.form-group textarea {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
 }
 
-textarea {
+.form-group textarea {
   height: 100px;
-}
-
-.date-picker {
-  padding: 10px;
-  border-radius: 5px;
 }

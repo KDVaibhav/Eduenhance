@@ -1,22 +1,24 @@
 import React, { useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css"; // Import CSS for react-datepicker
 import "./HomAssign.css"; // Import CSS for styling
 
 const initialAssignments = [
   {
     id: "1",
     title: "Math Homework",
-    dueDate: new Date("2024-08-15"),
+    dueDate: "2024-08-15",
     description: "Complete exercises 1-20 from chapter 5.",
     status: "Not Submitted",
+    file: null,
+    submissionText: null,
   },
   {
     id: "2",
     title: "History Essay",
-    dueDate: new Date("2024-08-20"),
+    dueDate: "2024-08-20",
     description: "Write an essay on the Renaissance period.",
     status: "Submitted",
+    file: "history_essay.pdf",
+    submissionText: null,
   },
 ];
 
@@ -24,12 +26,13 @@ const HomAssign = () => {
   const [assignments, setAssignments] = useState(initialAssignments);
   const [newAssignment, setNewAssignment] = useState({
     title: "",
-    dueDate: new Date(),
+    dueDate: "",
     description: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("All");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortOrder, setSortOrder] = useState("none");
+  const [file, setFile] = useState(null);
+  const [submissionText, setSubmissionText] = useState("");
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -40,8 +43,12 @@ const HomAssign = () => {
       id: newAssignmentId,
       ...newAssignment,
       status: "Not Submitted",
+      file: file ? URL.createObjectURL(file) : null,
+      submissionText: submissionText,
     };
     setAssignments([...assignments, assignmentToAdd]);
+    setFile(null);
+    setSubmissionText("");
     closeModal();
   };
 
@@ -49,67 +56,108 @@ const HomAssign = () => {
     setAssignments((prevAssignments) =>
       prevAssignments.map((assignment) =>
         assignment.id === id
-          ? { ...assignment, status: "Submitted" }
+          ? {
+              ...assignment,
+              status: "Submitted",
+              file: file ? URL.createObjectURL(file) : assignment.file,
+              submissionText: submissionText || assignment.submissionText,
+            }
           : assignment
       )
     );
+    setFile(null);
+    setSubmissionText("");
   };
 
-  const filteredAssignments = assignments.filter((assignment) =>
-    filterStatus === "All" ? true : assignment.status === filterStatus
-  );
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
 
-  const sortedAssignments = filteredAssignments.sort((a, b) =>
-    sortOrder === "asc"
-      ? new Date(a.dueDate) - new Date(b.dueDate)
-      : new Date(b.dueDate) - new Date(a.dueDate)
-  );
+  const handleSortChange = (e) => {
+    setSortOrder(e.target.value);
+  };
+
+  const sortedAssignments = [...assignments].sort((a, b) => {
+    if (sortOrder === "dueDateAsc") {
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    } else if (sortOrder === "dueDateDesc") {
+      return new Date(b.dueDate) - new Date(a.dueDate);
+    } else if (sortOrder === "status") {
+      return a.status.localeCompare(b.status);
+    } else {
+      return 0;
+    }
+  });
 
   return (
     <div className="assignments-container">
-      <h2>Assignments</h2>
-      <div className="toolbar">
+      <h2 className="header">Assignments</h2>
+      <div className="controls">
         <button className="add-button" onClick={openModal}>
-          Add Assignment
+          + Add Assignment
         </button>
         <select
-          className="filter-select"
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-        >
-          <option value="All">All</option>
-          <option value="Not Submitted">Not Submitted</option>
-          <option value="Submitted">Submitted</option>
-        </select>
-        <select
           className="sort-select"
+          onChange={handleSortChange}
           value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
         >
-          <option value="asc">Due Date Ascending</option>
-          <option value="desc">Due Date Descending</option>
+          <option value="none">Sort By</option>
+          <option value="dueDateAsc">Due Date (Asc)</option>
+          <option value="dueDateDesc">Due Date (Desc)</option>
+          <option value="status">Status</option>
         </select>
       </div>
       <ul className="assignments-list">
         {sortedAssignments.map((assignment) => (
           <li key={assignment.id} className="assignment-item">
-            <h3>{assignment.title}</h3>
+            <div className="assignment-header">
+              <h3>{assignment.title}</h3>
+              <span
+                className={`status ${assignment.status
+                  .toLowerCase()
+                  .replace(" ", "-")}`}
+              >
+                {assignment.status}
+              </span>
+            </div>
             <p>
-              <strong>Due Date:</strong> {assignment.dueDate.toDateString()}
+              <strong>Due Date:</strong> {assignment.dueDate}
             </p>
             <p>
               <strong>Description:</strong> {assignment.description}
             </p>
-            <p>
-              <strong>Status:</strong> {assignment.status}
-            </p>
+            {assignment.submissionText && (
+              <p>
+                <strong>Submission:</strong> {assignment.submissionText}
+              </p>
+            )}
+            {assignment.file && (
+              <p>
+                <strong>Submitted File:</strong>{" "}
+                <a
+                  href={assignment.file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {assignment.file.split("/").pop()}
+                </a>
+              </p>
+            )}
             {assignment.status === "Not Submitted" && (
-              <button
-                className="submit-button"
-                onClick={() => handleSubmit(assignment.id)}
-              >
-                Submit
-              </button>
+              <div className="submission-options">
+                <textarea
+                  placeholder="Type your submission here..."
+                  value={submissionText}
+                  onChange={(e) => setSubmissionText(e.target.value)}
+                />
+                <input type="file" accept=".pdf" onChange={handleFileChange} />
+                <button
+                  className="submit-button"
+                  onClick={() => handleSubmit(assignment.id)}
+                >
+                  Submit
+                </button>
+              </div>
             )}
           </li>
         ))}
@@ -144,17 +192,16 @@ const HomAssign = () => {
               </div>
               <div className="form-group">
                 <label>Due Date</label>
-                <DatePicker
-                  selected={newAssignment.dueDate}
-                  onChange={(date) =>
+                <input
+                  type="date"
+                  value={newAssignment.dueDate}
+                  onChange={(e) =>
                     setNewAssignment({
                       ...newAssignment,
-                      dueDate: date,
+                      dueDate: e.target.value,
                     })
                   }
-                  dateFormat="yyyy-MM-dd"
-                  className="date-picker"
-                  placeholderText="Select a due date"
+                  required
                 />
               </div>
               <div className="form-group">

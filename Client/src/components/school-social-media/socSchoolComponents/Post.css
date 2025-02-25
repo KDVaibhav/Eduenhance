@@ -1,0 +1,52 @@
+/* src/components/school-social-media/socSchoolComponents/Post.css */
+.post {
+  @apply bg-white p-4 rounded-lg shadow-md mb-4;
+}
+
+.post-header {
+  @apply flex items-center justify-between mb-2;
+}
+
+.post-author {
+  @apply font-semibold text-lg;
+}
+
+.post-actions {
+  @apply flex space-x-2;
+}
+
+.post-content {
+  @apply mb-4;
+}
+
+.post-reactions {
+  @apply flex items-center mb-4;
+}
+
+.reaction-button {
+  @apply px-3 py-1 text-sm rounded-lg hover:bg-gray-200;
+}
+
+.post-comments {
+  @apply mt-4;
+}
+
+.comment {
+  @apply p-2 border-b border-gray-200;
+}
+
+.add-post {
+  @apply bg-white p-4 rounded-lg shadow-md mb-4;
+}
+
+.add-post textarea {
+  @apply w-full p-2 border border-gray-300 rounded-md mb-2;
+}
+
+.add-post input[type="file"] {
+  @apply mb-2;
+}
+
+.add-post img {
+  @apply w-full h-auto rounded-lg;
+}

@@ -4,7 +4,7 @@ export const studentOptions = [
   { name: "Announcements", path: "announcements" },
   { name: "Attendance", path: "attendance" },
   { name: "Homework/Assignment", path: "homassign" },
-  { name: "SocSchool", path: "socscholl" },
+  { name: "SocSchool", path: "socSchool" },
 ];
 export const teacherOptions = [
   { name: "Timetable", path: "timetable" },
@@ -12,7 +12,7 @@ export const teacherOptions = [
   { name: "Announcements", path: "announcements" },
   { name: "Attendance", path: "attendance" },
   { name: "Homework/Assignment", path: "homassign" },
-  { name: "SocSchool", path: "socscholl" },
+  { name: "SocSchool", path: "socSchool" },
 ];
 
 export const testScoresData = [

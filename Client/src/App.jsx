@@ -51,10 +51,9 @@ const App = () => {
           <Navbar />
           <main className="flex-1 overflow-x-hidden overflow-y-auto">
             <Routes>
-              <Route exact path="/" element={<Landing />} />
               <Route
                 exact
-                path="/login"
+                path="/"
                 element={isAuthenticated ? <Landing /> : <Login />}
               />
               <Route exact path="/signup" element={<Signup />} />
@@ -77,11 +76,11 @@ function PrivateRoute({ isAuthenticated }) {
     (state) => state.auth
   );
   if (isLoading) return <Loader />;
-  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (!isAuthenticated) return <Navigate to="/" />;
   const RoleComponent = roleComponents[role];
   if (!user || !user.role) {
     console.error("User or user role is undefined");
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
   if (!RoleComponent || user.role.toLowerCase() !== role) {
     return <Navigate to={`/${user.role.toLowerCase()}`} />;

@@ -87,7 +87,7 @@ const Navbar = () => {
               ) : (
                 <div className="flex items-center space-x-4">
                   <Link
-                    to="/login"
+                    to="/"
                     className="bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded transition duration-300"
                   >
                     Login
@@ -179,7 +179,7 @@ const Navbar = () => {
           ) : (
             <div className="mt-3 px-2 space-y-1">
               <Link
-                to="/login"
+                to="/"
                 className="block bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded transition duration-300"
               >
                 Login

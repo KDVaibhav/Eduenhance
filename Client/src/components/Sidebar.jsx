@@ -89,7 +89,7 @@ const Sidebar = () => {
               ) : (
                 <div className="space-y-2">
                   <Link
-                    to="/login"
+                    to="/"
                     className="block w-full bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-2 px-4 rounded transition duration-300 text-center"
                   >
                     Login

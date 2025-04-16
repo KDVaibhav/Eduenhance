@@ -9,8 +9,8 @@ import { setAuth } from "../features/authSlice";
 // console.log(API_URL);
 
 const Login = () => {
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
+  const [identifier, setIdentifier] = useState("testUser");
+  const [password, setPassword] = useState("secret123");
   const [school, setSchool] = useState("");
   const [remember, setRemember] = useState(false);
   const [schools, setSchools] = useState([]);
@@ -41,7 +41,8 @@ const Login = () => {
       class: "6",
     };
     try {
-      if (identifier === "Vaibhav" && password === "Prabhupada@108") {
+      console.log(identifier, password);
+      if (identifier === "testUser" && password === "secret123") {
         dispatch(setAuth({ isAuthenticated: true, user: simulatedUser }));
         Cookies.set("user", JSON.stringify(simulatedUser), { expires: 7 });
         navigate(`/${simulatedUser.role.toLowerCase()}`);
@@ -150,7 +151,13 @@ const Login = () => {
             </Link>
           </p>
         </div>
-        <div className="hidden lg:block lg:w-1/2 bg-cover bg-center"></div>
+        <div className="hidden sm:hidden lg:flex lg:w-2/3 bg-cover bg-center items-center justify-center p-5">
+          <img
+            src="/Landing.png"
+            alt="Eduenhance"
+            className="w-full rounded-xl"
+          ></img>
+        </div>
       </div>
     </div>
   );

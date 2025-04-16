@@ -123,7 +123,9 @@ const Signup = ({ handleAuth }) => {
             </Link>
           </p>
         </div>
-        <div className="hidden lg:block lg:w-1/2 bg-cover bg-center"></div>
+        <div className="hidden sm:hidden lg:flex lg:w-2/3 bg-cover bg-center items-center justify-center p-5">
+          <img src="/Landing.png" alt="Eduenhance" className="w-full rounded-xl"></img>
+        </div>
       </div>
     </div>
   );

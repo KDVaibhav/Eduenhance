@@ -38,8 +38,9 @@ const Navbar = () => {
                 </svg>
               </button>
 
-            <Link to="/" className="flex-shrink-0">
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2">
               <img className="h-8 w-8" src="/favicon.svg" alt="Logo" />
+              <span className="text-white font-bold text-2xl">EduEnhance</span>
             </Link>
             <div className="hidden md:block">
               {!isOnDashboard && <div className="ml-10 flex items-baseline space-x-4">
